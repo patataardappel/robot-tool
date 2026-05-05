@@ -17,6 +17,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // load helper logic from separate file
 require_once __DIR__ . '/includes/calculator.php';
+require_once __DIR__ . '/includes/form.php';
+require_once __DIR__ . '/includes/results.php';
+
+// add shortcodes for form and results
+add_shortcode( 'my_plugin_form', 'my_plugin_form_shortcode' );
+add_shortcode( 'my_plugin_results', 'my_plugin_results_shortcode' );
 
 // register a simple block that renders text and a button
 add_action( 'init', 'my_plugin_register_block' );
@@ -53,6 +59,11 @@ function my_plugin_settings_init() {
         'sanitize_callback' => 'my_plugin_sanitize_options',
         'default'           => array(),
     ) );
+
+    register_setting( 'my_plugin', 'my_plugin_products', array(
+        'sanitize_callback' => 'my_plugin_sanitize_products',
+        'default'           => array(),
+    ) );
 }
 
 function my_plugin_sanitize_options( $input ) {
@@ -84,6 +95,37 @@ function my_plugin_sanitize_options( $input ) {
     }
 
     return $options;
+}
+
+function my_plugin_sanitize_products( $input ) {
+    $products = array();
+
+    // Expect an array of products, each with name, price and image.
+    if ( ! is_array( $input ) ) {
+        return $products;
+    }
+
+    foreach ( $input as $product ) {
+        if ( ! is_array( $product ) ) {
+            continue;
+        }
+
+        $name   = isset( $product['name'] ) ? sanitize_text_field( $product['name'] ) : '';
+        $price  = isset( $product['price'] ) ? floatval( $product['price'] ) : 0;
+        $image  = isset( $product['image'] ) ? esc_url_raw( $product['image'] ) : '';
+
+        if ( $name === '' ) {
+            continue;
+        }
+
+        $products[] = array(
+            'name'   => $name,
+            'price'  => $price,
+            'image'  => $image,
+        );
+    }
+
+    return $products;
 }
 
 function my_plugin_options_page() {
@@ -130,6 +172,44 @@ function my_plugin_options_page() {
             </div>
 
             <button type="button" class="button button-primary" id="my-plugin-add-item">Add item</button>
+
+            <h2>Products</h2>
+            <?php
+            $products = get_option( 'my_plugin_products', array() );
+            if ( ! is_array( $products ) ) {
+                $products = array();
+            }
+            ?>
+
+            <div id="my-plugin-products">
+                <?php foreach ( $products as $index => $product ) : ?>
+                    <div class="my-plugin-product">
+                        <h4>Product <?php echo ( $index + 1 ); ?></h4>
+                        <p>
+                            <label>Name:
+                                <input type="text" name="my_plugin_products[<?php echo $index; ?>][name]" value="<?php echo esc_attr( $product['name'] ?? '' ); ?>" />
+                            </label>
+                        </p>
+                        <p>
+                            <label>Price:
+                                <input type="number" step="any" name="my_plugin_products[<?php echo $index; ?>][price]" value="<?php echo esc_attr( $product['price'] ?? '' ); ?>" />
+                            </label>
+                        </p>
+                        <p>
+                            <label>Image URL:
+                                <input type="text" class="my-plugin-image-url" name="my_plugin_products[<?php echo $index; ?>][image]" value="<?php echo esc_attr( $product['image'] ?? '' ); ?>" />
+                            </label>
+                            <button type="button" class="button my-plugin-select-image">Select Image</button>
+                        </p>
+                        <p>
+                            <button type="button" class="button my-plugin-remove-product">Remove product</button>
+                        </p>
+                        <hr />
+                    </div>
+                <?php endforeach; ?>
+            </div>
+
+            <button type="button" class="button button-primary" id="my-plugin-add-product">Add product</button>
 
             <script>
             (function(){
@@ -207,6 +287,82 @@ function my_plugin_options_page() {
                     container.appendChild( newItem );
                     bindItemEvents( newItem );
                 });
+
+                // Products handling
+                var productContainer = document.getElementById('my-plugin-products');
+                var addProductButton = document.getElementById('my-plugin-add-product');
+
+                function reIndexProducts() {
+                    var products = productContainer.querySelectorAll('.my-plugin-product');
+                    products.forEach(function(product, idx){
+                        product.querySelector('h4').textContent = 'Product ' + (idx + 1);
+                        product.querySelectorAll('input').forEach(function(input){
+                            if ( input.name.indexOf('[name]') !== -1 ) {
+                                input.name = 'my_plugin_products[' + idx + '][name]';
+                            } else if ( input.name.indexOf('[price]') !== -1 ) {
+                                input.name = 'my_plugin_products[' + idx + '][price]';
+                            } else if ( input.name.indexOf('[image]') !== -1 ) {
+                                input.name = 'my_plugin_products[' + idx + '][image]';
+                            }
+                        });
+                    });
+                }
+
+                function bindProductEvents( product ) {
+                    var removeBtn = product.querySelector('.my-plugin-remove-product');
+                    var selectBtn = product.querySelector('.my-plugin-select-image');
+
+                    removeBtn.addEventListener('click', function(){
+                        product.remove();
+                        reIndexProducts();
+                    });
+
+                    selectBtn.addEventListener('click', function( e ){
+                        e.preventDefault();
+
+                        if ( typeof wp !== 'undefined' && wp.media ) {
+                            var frame = wp.media({
+                                title: 'Select Image',
+                                button: { text: 'Use this image' },
+                                multiple: false
+                            });
+
+                            frame.on('select', function() {
+                                var attachment = frame.state().get('selection').first().toJSON();
+                                product.querySelector('.my-plugin-image-url').value = attachment.url;
+                            });
+
+                            frame.open();
+                        } else {
+                            alert('Media uploader not available.');
+                        }
+                    });
+                }
+
+                function buildProductHtml( index ) {
+                    return (
+                        '<div class="my-plugin-product">' +
+                            '<h4>Product ' + (index + 1) + '</h4>' +
+                            '<p><label>Name: <input type="text" name="my_plugin_products[' + index + '][name]" value="" /></label></p>' +
+                            '<p><label>Price: <input type="number" step="any" name="my_plugin_products[' + index + '][price]" value="" /></label></p>' +
+                            '<p><label>Image URL: <input type="text" class="my-plugin-image-url" name="my_plugin_products[' + index + '][image]" value="" /></label>' +
+                            ' <button type="button" class="button my-plugin-select-image">Select Image</button></p>' +
+                            '<p><button type="button" class="button my-plugin-remove-product">Remove product</button></p>' +
+                            '<hr />' +
+                        '</div>'
+                    );
+                }
+
+                productContainer.querySelectorAll('.my-plugin-product').forEach(bindProductEvents);
+
+                addProductButton.addEventListener('click', function(){
+                    var idx = productContainer.querySelectorAll('.my-plugin-product').length;
+                    var temp = document.createElement('div');
+                    temp.innerHTML = buildProductHtml( idx );
+                    var newProduct = temp.firstElementChild;
+                    productContainer.appendChild( newProduct );
+                    bindProductEvents( newProduct );
+                });
             })();
             </script>
 
@@ -222,7 +378,8 @@ add_action( 'wp_ajax_nopriv_my_plugin_calculate', 'my_plugin_ajax_calculate' );
 function my_plugin_ajax_calculate() {
     $meters  = isset( $_POST['meters'] ) ? floatval( $_POST['meters'] ) : 0;
     $minutes = isset( $_POST['minutes'] ) ? floatval( $_POST['minutes'] ) : 0;
-    echo my_plugin_calculate_display( $meters, $minutes );
+    $floor_type = isset( $_POST['floor_type'] ) ? sanitize_text_field( $_POST['floor_type'] ) : '';
+    echo my_plugin_calculate_display( $meters, $minutes, $floor_type );
     wp_die();
 }
 
@@ -237,6 +394,13 @@ function my_plugin_render_block( $attributes ) {
         <label>gewenste inzet tijd minuten:
             <input type="number" id="my-plugin-input-minutes" value="" />
         </label><br />
+        <label>Type of floor:
+            <select id="my-plugin-input-floor-type">
+                <option value="hard">Hard floor</option>
+                <option value="carpet">Carpet</option>
+                <option value="tile">Tile</option>
+            </select>
+        </label><br />
         <button type="button" id="my-plugin-calc-btn">Calculate</button>
         <div id="my-plugin-result"></div>
     </div>
@@ -247,10 +411,12 @@ function my_plugin_render_block( $attributes ) {
             btn.addEventListener('click', function(){
                 var meters = document.getElementById('my-plugin-input-meters').value;
                 var minutes = document.getElementById('my-plugin-input-minutes').value;
+                var floorType = document.getElementById('my-plugin-input-floor-type').value;
                 var data = new FormData();
                 data.append('action','my_plugin_calculate');
                 data.append('meters', meters);
                 data.append('minutes', minutes);
+                data.append('floor_type', floorType);
                 fetch('<?php echo esc_url(admin_url('admin-ajax.php')); ?>', {
                     method: 'POST',
                     credentials: 'same-origin',
