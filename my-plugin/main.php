@@ -20,6 +20,17 @@ require_once __DIR__ . '/includes/calculator.php';
 require_once __DIR__ . '/includes/form.php';
 require_once __DIR__ . '/includes/results.php';
 
+// enqueue plugin styles
+add_action( 'wp_enqueue_scripts', 'my_plugin_enqueue_styles' );
+function my_plugin_enqueue_styles() {
+    wp_enqueue_style(
+        'my-plugin-styles',
+        plugins_url( 'assets/styling/style.css', __FILE__ ),
+        array(),
+        filemtime( plugin_dir_path( __FILE__ ) . 'assets/styling/style.css' )
+    );
+}
+
 // add shortcodes for form and results
 add_shortcode( 'my_plugin_form', 'my_plugin_form_shortcode' );
 add_shortcode( 'my_plugin_results', 'my_plugin_results_shortcode' );
@@ -69,7 +80,7 @@ function my_plugin_settings_init() {
 function my_plugin_sanitize_options( $input ) {
     $options = array();
 
-    // Expect an array of items, each with name, meters and image.
+    // Expect an array of cleaning robots, each with name, meters, image and additional stats.
     if ( ! is_array( $input ) ) {
         return $options;
     }
@@ -79,18 +90,50 @@ function my_plugin_sanitize_options( $input ) {
             continue;
         }
 
-        $name   = isset( $item['name'] ) ? sanitize_text_field( $item['name'] ) : '';
-        $meters = isset( $item['meters'] ) ? floatval( $item['meters'] ) : 0;
-        $image  = isset( $item['image'] ) ? esc_url_raw( $item['image'] ) : '';
+        $name                        = isset( $item['name'] ) ? sanitize_text_field( $item['name'] ) : '';
+        $meters                      = isset( $item['meters'] ) ? floatval( $item['meters'] ) : 0;
+        $image                       = isset( $item['image'] ) ? esc_url_raw( $item['image'] ) : '';
+        $cleaning_functions          = isset( $item['cleaning_functions'] ) ? sanitize_text_field( $item['cleaning_functions'] ) : '';
+        $dimensions_width            = isset( $item['dimensions_width'] ) ? floatval( $item['dimensions_width'] ) : 0;
+        $dimensions_depth            = isset( $item['dimensions_depth'] ) ? floatval( $item['dimensions_depth'] ) : 0;
+        $dimensions_height           = isset( $item['dimensions_height'] ) ? floatval( $item['dimensions_height'] ) : 0;
+        $weight                      = isset( $item['weight'] ) ? floatval( $item['weight'] ) : 0;
+        $battery_voltage             = isset( $item['battery_voltage'] ) ? floatval( $item['battery_voltage'] ) : 0;
+        $battery_capacity            = isset( $item['battery_capacity'] ) ? floatval( $item['battery_capacity'] ) : 0;
+        $charge_time                 = isset( $item['charge_time'] ) ? floatval( $item['charge_time'] ) : 0;
+        $max_run_time                = isset( $item['max_run_time'] ) ? floatval( $item['max_run_time'] ) : 0;
+        $cleaning_width              = isset( $item['cleaning_width'] ) ? sanitize_text_field( $item['cleaning_width'] ) : '';
+        $cleaning_efficiency         = isset( $item['cleaning_efficiency'] ) ? floatval( $item['cleaning_efficiency'] ) : 0;
+        $total_capacity_per_use      = isset( $item['total_capacity_per_use'] ) ? floatval( $item['total_capacity_per_use'] ) : 0;
+        $clean_water_tank_capacity   = isset( $item['clean_water_tank_capacity'] ) ? floatval( $item['clean_water_tank_capacity'] ) : 0;
+        $dirty_water_tank_capacity   = isset( $item['dirty_water_tank_capacity'] ) ? floatval( $item['dirty_water_tank_capacity'] ) : 0;
+        $dust_bag_capacity           = isset( $item['dust_bag_capacity'] ) ? floatval( $item['dust_bag_capacity'] ) : 0;
+        $waste_container_capacity    = isset( $item['waste_container_capacity'] ) ? floatval( $item['waste_container_capacity'] ) : 0;
 
         if ( $name === '' ) {
             continue;
         }
 
         $options[] = array(
-            'name'   => $name,
-            'meters' => $meters,
-            'image'  => $image,
+            'name'                      => $name,
+            'meters'                    => $meters,
+            'image'                     => $image,
+            'cleaning_functions'        => $cleaning_functions,
+            'dimensions_width'          => $dimensions_width,
+            'dimensions_depth'          => $dimensions_depth,
+            'dimensions_height'         => $dimensions_height,
+            'weight'                    => $weight,
+            'battery_voltage'           => $battery_voltage,
+            'battery_capacity'          => $battery_capacity,
+            'charge_time'               => $charge_time,
+            'max_run_time'              => $max_run_time,
+            'cleaning_width'            => $cleaning_width,
+            'cleaning_efficiency'       => $cleaning_efficiency,
+            'total_capacity_per_use'    => $total_capacity_per_use,
+            'clean_water_tank_capacity' => $clean_water_tank_capacity,
+            'dirty_water_tank_capacity' => $dirty_water_tank_capacity,
+            'dust_bag_capacity'         => $dust_bag_capacity,
+            'waste_container_capacity'  => $waste_container_capacity,
         );
     }
 
@@ -143,18 +186,91 @@ function my_plugin_options_page() {
             }
             ?>
 
-            <div id="my-plugin-items">
+            <div id="my-plugin-cleaning-robots">
                 <?php foreach ( $options as $index => $item ) : ?>
-                    <div class="my-plugin-item">
-                        <h4>Item <?php echo ( $index + 1 ); ?></h4>
+                    <div class="my-plugin-cleaning-robot">
+                        <h4>Cleaning robot <?php echo ( $index + 1 ); ?></h4>
                         <p>
                             <label>Name:
                                 <input type="text" name="my_plugin_options[<?php echo $index; ?>][name]" value="<?php echo esc_attr( $item['name'] ?? '' ); ?>" />
                             </label>
                         </p>
                         <p>
-                            <label>Meters:
+                            <label>Price:
+                                <input type="number" step="any" name="my_plugin_options[<?php echo $index; ?>][euro]" value="<?php echo esc_attr( $item['euro'] ?? '' ); ?>" />
+                            </label>
+                        </p>
+                        <p>
+                            <label>Performance threshold (m²/h):
                                 <input type="number" step="any" name="my_plugin_options[<?php echo $index; ?>][meters]" value="<?php echo esc_attr( $item['meters'] ?? '' ); ?>" />
+                            </label>
+                        </p>
+                        <p>
+                            <label>Cleaning functions:
+                                <input type="text" name="my_plugin_options[<?php echo $index; ?>][cleaning_functions]" value="<?php echo esc_attr( $item['cleaning_functions'] ?? '' ); ?>" placeholder="Vegen, Stofzuigen, Dweilen, Stofwissen" />
+                            </label>
+                        </p>
+                        <p>
+                            <label>Dimensions (Width x Depth x Height) in mm:
+                                <input type="number" step="any" min="0" name="my_plugin_options[<?php echo $index; ?>][dimensions_width]" value="<?php echo esc_attr( $item['dimensions_width'] ?? '' ); ?>" placeholder="616" /> x
+                                <input type="number" step="any" min="0" name="my_plugin_options[<?php echo $index; ?>][dimensions_depth]" value="<?php echo esc_attr( $item['dimensions_depth'] ?? '' ); ?>" placeholder="550" /> x
+                                <input type="number" step="any" min="0" name="my_plugin_options[<?php echo $index; ?>][dimensions_height]" value="<?php echo esc_attr( $item['dimensions_height'] ?? '' ); ?>" placeholder="690" /> mm
+                            </label>
+                        </p>
+                        <p>
+                            <label>Weight (kg):
+                                <input type="number" step="any" min="0" name="my_plugin_options[<?php echo $index; ?>][weight]" value="<?php echo esc_attr( $item['weight'] ?? '' ); ?>" placeholder="70" />
+                            </label>
+                        </p>
+                        <p>
+                            <label>Battery (Voltage V / Capacity Ah):
+                                <input type="number" step="any" min="0" name="my_plugin_options[<?php echo $index; ?>][battery_voltage]" value="<?php echo esc_attr( $item['battery_voltage'] ?? '' ); ?>" placeholder="25.6" /> V /
+                                <input type="number" step="any" min="0" name="my_plugin_options[<?php echo $index; ?>][battery_capacity]" value="<?php echo esc_attr( $item['battery_capacity'] ?? '' ); ?>" placeholder="50" /> Ah
+                            </label>
+                        </p>
+                        <p>
+                            <label>Charge time (hours):
+                                <input type="number" step="any" min="0" name="my_plugin_options[<?php echo $index; ?>][charge_time]" value="<?php echo esc_attr( $item['charge_time'] ?? '' ); ?>" placeholder="2" />
+                            </label>
+                        </p>
+                        <p>
+                            <label>Maximum run time (hours):
+                                <input type="number" step="any" min="0" name="my_plugin_options[<?php echo $index; ?>][max_run_time]" value="<?php echo esc_attr( $item['max_run_time'] ?? '' ); ?>" placeholder="5" />
+                            </label>
+                        </p>
+                        <p>
+                            <label>Cleaning width (m²):
+                                <input type="number" step="any" min="0" name="my_plugin_options[<?php echo $index; ?>][cleaning_width]" value="<?php echo esc_attr( $item['cleaning_width'] ?? '' ); ?>" placeholder="560" />
+                            </label>
+                        </p>
+                        <p>
+                            <label>Cleaning efficiency (m²/h):
+                                <input type="number" step="any" min="0" name="my_plugin_options[<?php echo $index; ?>][cleaning_efficiency]" value="<?php echo esc_attr( $item['cleaning_efficiency'] ?? '' ); ?>" placeholder="1100" />
+                            </label>
+                        </p>
+                        <p>
+                            <label>Total capacity per use (m²):
+                                <input type="number" step="any" min="0" name="my_plugin_options[<?php echo $index; ?>][total_capacity_per_use]" value="<?php echo esc_attr( $item['total_capacity_per_use'] ?? '' ); ?>" placeholder="4500" />
+                            </label>
+                        </p>
+                        <p>
+                            <label>Clean water tank capacity (liters):
+                                <input type="number" step="any" min="0" name="my_plugin_options[<?php echo $index; ?>][clean_water_tank_capacity]" value="<?php echo esc_attr( $item['clean_water_tank_capacity'] ?? '' ); ?>" placeholder="16" />
+                            </label>
+                        </p>
+                        <p>
+                            <label>Dirty water tank capacity (liters):
+                                <input type="number" step="any" min="0" name="my_plugin_options[<?php echo $index; ?>][dirty_water_tank_capacity]" value="<?php echo esc_attr( $item['dirty_water_tank_capacity'] ?? '' ); ?>" placeholder="14" />
+                            </label>
+                        </p>
+                        <p>
+                            <label>Dust bag capacity (liters):
+                                <input type="number" step="any" min="0" name="my_plugin_options[<?php echo $index; ?>][dust_bag_capacity]" value="<?php echo esc_attr( $item['dust_bag_capacity'] ?? '' ); ?>" placeholder="8" />
+                            </label>
+                        </p>
+                        <p>
+                            <label>Waste container capacity (liters):
+                                <input type="number" step="any" min="0" name="my_plugin_options[<?php echo $index; ?>][waste_container_capacity]" value="<?php echo esc_attr( $item['waste_container_capacity'] ?? '' ); ?>" placeholder="0.7" />
                             </label>
                         </p>
                         <p>
@@ -164,14 +280,14 @@ function my_plugin_options_page() {
                             <button type="button" class="button my-plugin-select-image">Select Image</button>
                         </p>
                         <p>
-                            <button type="button" class="button my-plugin-remove-item">Remove item</button>
+                            <button type="button" class="button my-plugin-remove-cleaning-robot">Remove cleaning robot</button>
                         </p>
                         <hr />
                     </div>
                 <?php endforeach; ?>
             </div>
 
-            <button type="button" class="button button-primary" id="my-plugin-add-item">Add item</button>
+            <button type="button" class="button button-primary" id="my-plugin-add-cleaning-robot">Add cleaning robot</button>
 
             <h2>Products</h2>
             <?php
@@ -213,18 +329,50 @@ function my_plugin_options_page() {
 
             <script>
             (function(){
-                var container = document.getElementById('my-plugin-items');
-                var addButton = document.getElementById('my-plugin-add-item');
+                var container = document.getElementById('my-plugin-cleaning-robots');
+                var addButton = document.getElementById('my-plugin-add-cleaning-robot');
 
                 function reIndexItems() {
-                    var items = container.querySelectorAll('.my-plugin-item');
+                    var items = container.querySelectorAll('.my-plugin-cleaning-robot');
                     items.forEach(function(item, idx){
-                        item.querySelector('h4').textContent = 'Item ' + (idx + 1);
+                        item.querySelector('h4').textContent = 'Cleaning robot ' + (idx + 1);
                         item.querySelectorAll('input').forEach(function(input){
                             if ( input.name.indexOf('[name]') !== -1 ) {
                                 input.name = 'my_plugin_options[' + idx + '][name]';
                             } else if ( input.name.indexOf('[meters]') !== -1 ) {
                                 input.name = 'my_plugin_options[' + idx + '][meters]';
+                            } else if ( input.name.indexOf('[cleaning_functions]') !== -1 ) {
+                                input.name = 'my_plugin_options[' + idx + '][cleaning_functions]';
+                            } else if ( input.name.indexOf('[dimensions_width]') !== -1 ) {
+                                input.name = 'my_plugin_options[' + idx + '][dimensions_width]';
+                            } else if ( input.name.indexOf('[dimensions_depth]') !== -1 ) {
+                                input.name = 'my_plugin_options[' + idx + '][dimensions_depth]';
+                            } else if ( input.name.indexOf('[dimensions_height]') !== -1 ) {
+                                input.name = 'my_plugin_options[' + idx + '][dimensions_height]';
+                            } else if ( input.name.indexOf('[weight]') !== -1 ) {
+                                input.name = 'my_plugin_options[' + idx + '][weight]';
+                            } else if ( input.name.indexOf('[battery_voltage]') !== -1 ) {
+                                input.name = 'my_plugin_options[' + idx + '][battery_voltage]';
+                            } else if ( input.name.indexOf('[battery_capacity]') !== -1 ) {
+                                input.name = 'my_plugin_options[' + idx + '][battery_capacity]';
+                            } else if ( input.name.indexOf('[charge_time]') !== -1 ) {
+                                input.name = 'my_plugin_options[' + idx + '][charge_time]';
+                            } else if ( input.name.indexOf('[max_run_time]') !== -1 ) {
+                                input.name = 'my_plugin_options[' + idx + '][max_run_time]';
+                            } else if ( input.name.indexOf('[cleaning_width]') !== -1 ) {
+                                input.name = 'my_plugin_options[' + idx + '][cleaning_width]';
+                            } else if ( input.name.indexOf('[cleaning_efficiency]') !== -1 ) {
+                                input.name = 'my_plugin_options[' + idx + '][cleaning_efficiency]';
+                            } else if ( input.name.indexOf('[total_capacity_per_use]') !== -1 ) {
+                                input.name = 'my_plugin_options[' + idx + '][total_capacity_per_use]';
+                            } else if ( input.name.indexOf('[clean_water_tank_capacity]') !== -1 ) {
+                                input.name = 'my_plugin_options[' + idx + '][clean_water_tank_capacity]';
+                            } else if ( input.name.indexOf('[dirty_water_tank_capacity]') !== -1 ) {
+                                input.name = 'my_plugin_options[' + idx + '][dirty_water_tank_capacity]';
+                            } else if ( input.name.indexOf('[dust_bag_capacity]') !== -1 ) {
+                                input.name = 'my_plugin_options[' + idx + '][dust_bag_capacity]';
+                            } else if ( input.name.indexOf('[waste_container_capacity]') !== -1 ) {
+                                input.name = 'my_plugin_options[' + idx + '][waste_container_capacity]';
                             } else if ( input.name.indexOf('[image]') !== -1 ) {
                                 input.name = 'my_plugin_options[' + idx + '][image]';
                             }
@@ -233,7 +381,7 @@ function my_plugin_options_page() {
                 }
 
                 function bindItemEvents( item ) {
-                    var removeBtn = item.querySelector('.my-plugin-remove-item');
+                    var removeBtn = item.querySelector('.my-plugin-remove-cleaning-robot');
                     var selectBtn = item.querySelector('.my-plugin-select-image');
 
                     removeBtn.addEventListener('click', function(){
@@ -265,22 +413,35 @@ function my_plugin_options_page() {
 
                 function buildItemHtml( index ) {
                     return (
-                        '<div class="my-plugin-item">' +
-                            '<h4>Item ' + (index + 1) + '</h4>' +
+                        '<div class="my-plugin-cleaning-robot">' +
+                            '<h4>Cleaning robot ' + (index + 1) + '</h4>' +
                             '<p><label>Name: <input type="text" name="my_plugin_options[' + index + '][name]" value="" /></label></p>' +
-                            '<p><label>Meters: <input type="number" step="any" name="my_plugin_options[' + index + '][meters]" value="" /></label></p>' +
+                            '<p><label>Performance threshold (m²/h): <input type="number" step="any" name="my_plugin_options[' + index + '][meters]" value="" /></label></p>' +
+                            '<p><label>Cleaning functions: <input type="text" name="my_plugin_options[' + index + '][cleaning_functions]" value="" placeholder="Vegen, Stofzuigen, Dweilen, Stofwissen" /></label></p>' +
+                            '<p><label>Dimensions (Width x Depth x Height) in mm: <input type="number" step="any" min="0" name="my_plugin_options[' + index + '][dimensions_width]" value="" placeholder="616" /> x <input type="number" step="any" min="0" name="my_plugin_options[' + index + '][dimensions_depth]" value="" placeholder="550" /> x <input type="number" step="any" min="0" name="my_plugin_options[' + index + '][dimensions_height]" value="" placeholder="690" /> mm</label></p>' +
+                            '<p><label>Weight (kg): <input type="number" step="any" min="0" name="my_plugin_options[' + index + '][weight]" value="" placeholder="70" /></label></p>' +
+                            '<p><label>Battery (Voltage V / Capacity Ah): <input type="number" step="any" min="0" name="my_plugin_options[' + index + '][battery_voltage]" value="" placeholder="25.6" /> V / <input type="number" step="any" min="0" name="my_plugin_options[' + index + '][battery_capacity]" value="" placeholder="50" /> Ah</label></p>' +
+                            '<p><label>Charge time (hours): <input type="number" step="any" min="0" name="my_plugin_options[' + index + '][charge_time]" value="" placeholder="2" /></label></p>' +
+                            '<p><label>Maximum run time (hours): <input type="number" step="any" min="0" name="my_plugin_options[' + index + '][max_run_time]" value="" placeholder="5" /></label></p>' +
+                            '<p><label>Cleaning width: <input type="number" step="any" min="0" name="my_plugin_options[' + index + '][cleaning_width]" value="" placeholder="560" /></label></p>' +
+                            '<p><label>Cleaning efficiency (m²/h): <input type="number" step="any" min="0" name="my_plugin_options[' + index + '][cleaning_efficiency]" value="" placeholder="1100" /></label></p>' +
+                            '<p><label>Total capacity per use (m²): <input type="number" step="any" min="0" name="my_plugin_options[' + index + '][total_capacity_per_use]" value="" placeholder="4500" /></label></p>' +
+                            '<p><label>Clean water tank capacity (liters): <input type="number" step="any" min="0" name="my_plugin_options[' + index + '][clean_water_tank_capacity]" value="" placeholder="16" /></label></p>' +
+                            '<p><label>Dirty water tank capacity (liters): <input type="number" step="any" min="0" name="my_plugin_options[' + index + '][dirty_water_tank_capacity]" value="" placeholder="14" /></label></p>' +
+                            '<p><label>Dust bag capacity (liters): <input type="number" step="any" min="0" name="my_plugin_options[' + index + '][dust_bag_capacity]" value="" placeholder="8" /></label></p>' +
+                            '<p><label>Waste container capacity (liters): <input type="number" step="any" min="0" name="my_plugin_options[' + index + '][waste_container_capacity]" value="" placeholder="0.7" /></label></p>' +
                             '<p><label>Image URL: <input type="text" class="my-plugin-image-url" name="my_plugin_options[' + index + '][image]" value="" /></label>' +
                             ' <button type="button" class="button my-plugin-select-image">Select Image</button></p>' +
-                            '<p><button type="button" class="button my-plugin-remove-item">Remove item</button></p>' +
+                            '<p><button type="button" class="button my-plugin-remove-cleaning-robot">Remove cleaning robot</button></p>' +
                             '<hr />' +
                         '</div>'
                     );
                 }
 
-                container.querySelectorAll('.my-plugin-item').forEach(bindItemEvents);
+                container.querySelectorAll('.my-plugin-cleaning-robot').forEach(bindItemEvents);
 
                 addButton.addEventListener('click', function(){
-                    var idx = container.querySelectorAll('.my-plugin-item').length;
+                    var idx = container.querySelectorAll('.my-plugin-cleaning-robot').length;
                     var temp = document.createElement('div');
                     temp.innerHTML = buildItemHtml( idx );
                     var newItem = temp.firstElementChild;
@@ -387,23 +548,6 @@ function my_plugin_render_block( $attributes ) {
     // output form plus container for results
     ob_start();
     ?>
-    <div class="my-plugin-block">
-        <label>groote om schoon te maken in m2:
-            <input type="number" id="my-plugin-input-meters" value="" />
-        </label><br />
-        <label>gewenste inzet tijd minuten:
-            <input type="number" id="my-plugin-input-minutes" value="" />
-        </label><br />
-        <label>Type of floor:
-            <select id="my-plugin-input-floor-type">
-                <option value="hard">Hard floor</option>
-                <option value="carpet">Carpet</option>
-                <option value="tile">Tile</option>
-            </select>
-        </label><br />
-        <button type="button" id="my-plugin-calc-btn">Calculate</button>
-        <div id="my-plugin-result"></div>
-    </div>
     <script>
     document.addEventListener('DOMContentLoaded', function(){
         var btn = document.getElementById('my-plugin-calc-btn');
