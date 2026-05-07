@@ -20,6 +20,17 @@ require_once __DIR__ . '/includes/calculator.php';
 require_once __DIR__ . '/includes/form.php';
 require_once __DIR__ . '/includes/results.php';
 
+// enqueue plugin styles
+add_action( 'wp_enqueue_scripts', 'my_plugin_enqueue_styles' );
+function my_plugin_enqueue_styles() {
+    wp_enqueue_style(
+        'my-plugin-styles',
+        plugins_url( 'assets/styling/style.css', __FILE__ ),
+        array(),
+        filemtime( plugin_dir_path( __FILE__ ) . 'assets/styling/style.css' )
+    );
+}
+
 // add shortcodes for form and results
 add_shortcode( 'my_plugin_form', 'my_plugin_form_shortcode' );
 add_shortcode( 'my_plugin_results', 'my_plugin_results_shortcode' );
@@ -185,6 +196,11 @@ function my_plugin_options_page() {
                             </label>
                         </p>
                         <p>
+                            <label>Price:
+                                <input type="number" step="any" name="my_plugin_options[<?php echo $index; ?>][euro]" value="<?php echo esc_attr( $item['euro'] ?? '' ); ?>" />
+                            </label>
+                        </p>
+                        <p>
                             <label>Performance threshold (m²/h):
                                 <input type="number" step="any" name="my_plugin_options[<?php echo $index; ?>][meters]" value="<?php echo esc_attr( $item['meters'] ?? '' ); ?>" />
                             </label>
@@ -223,8 +239,8 @@ function my_plugin_options_page() {
                             </label>
                         </p>
                         <p>
-                            <label>Cleaning width:
-                                <input type="text" name="my_plugin_options[<?php echo $index; ?>][cleaning_width]" value="<?php echo esc_attr( $item['cleaning_width'] ?? '' ); ?>" placeholder="560 mm (vegen met dubbele zijborstels), 400 mm (stofzuigen en schrobben/dweilen)" />
+                            <label>Cleaning width (m²):
+                                <input type="number" step="any" min="0" name="my_plugin_options[<?php echo $index; ?>][cleaning_width]" value="<?php echo esc_attr( $item['cleaning_width'] ?? '' ); ?>" placeholder="560" />
                             </label>
                         </p>
                         <p>
@@ -407,7 +423,7 @@ function my_plugin_options_page() {
                             '<p><label>Battery (Voltage V / Capacity Ah): <input type="number" step="any" min="0" name="my_plugin_options[' + index + '][battery_voltage]" value="" placeholder="25.6" /> V / <input type="number" step="any" min="0" name="my_plugin_options[' + index + '][battery_capacity]" value="" placeholder="50" /> Ah</label></p>' +
                             '<p><label>Charge time (hours): <input type="number" step="any" min="0" name="my_plugin_options[' + index + '][charge_time]" value="" placeholder="2" /></label></p>' +
                             '<p><label>Maximum run time (hours): <input type="number" step="any" min="0" name="my_plugin_options[' + index + '][max_run_time]" value="" placeholder="5" /></label></p>' +
-                            '<p><label>Cleaning width: <input type="text" name="my_plugin_options[' + index + '][cleaning_width]" value="" placeholder="560 mm (vegen met dubbele zijborstels), 400 mm (stofzuigen en schrobben/dweilen)" /></label></p>' +
+                            '<p><label>Cleaning width: <input type="number" step="any" min="0" name="my_plugin_options[' + index + '][cleaning_width]" value="" placeholder="560" /></label></p>' +
                             '<p><label>Cleaning efficiency (m²/h): <input type="number" step="any" min="0" name="my_plugin_options[' + index + '][cleaning_efficiency]" value="" placeholder="1100" /></label></p>' +
                             '<p><label>Total capacity per use (m²): <input type="number" step="any" min="0" name="my_plugin_options[' + index + '][total_capacity_per_use]" value="" placeholder="4500" /></label></p>' +
                             '<p><label>Clean water tank capacity (liters): <input type="number" step="any" min="0" name="my_plugin_options[' + index + '][clean_water_tank_capacity]" value="" placeholder="16" /></label></p>' +
