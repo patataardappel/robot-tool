@@ -20,14 +20,22 @@ require_once __DIR__ . '/includes/calculator.php';
 require_once __DIR__ . '/includes/form.php';
 require_once __DIR__ . '/includes/results.php';
 
-// enqueue plugin styles
-add_action( 'wp_enqueue_scripts', 'my_plugin_enqueue_styles' );
-function my_plugin_enqueue_styles() {
+// enqueue plugin styles and frontend scripts
+add_action( 'wp_enqueue_scripts', 'my_plugin_enqueue_assets' );
+function my_plugin_enqueue_assets() {
     wp_enqueue_style(
         'my-plugin-styles',
         plugins_url( 'assets/styling/style.css', __FILE__ ),
         array(),
         filemtime( plugin_dir_path( __FILE__ ) . 'assets/styling/style.css' )
+    );
+
+    wp_enqueue_script(
+        'my-plugin-chartjs',
+        'https://cdn.jsdelivr.net/npm/chart.js',
+        array(),
+        '4.4.0',
+        true
     );
 }
 
@@ -92,6 +100,14 @@ function my_plugin_sanitize_options( $input ) {
 
         $name                        = isset( $item['name'] ) ? sanitize_text_field( $item['name'] ) : '';
         $meters                      = isset( $item['meters'] ) ? floatval( $item['meters'] ) : 0;
+        $price                       = 0;
+        if ( isset( $item['price'] ) ) {
+            $price = floatval( $item['price'] );
+        } elseif ( isset( $item['euro'] ) ) {
+            $price = floatval( $item['euro'] );
+        }
+        $price_month                 = isset( $item['price_month'] ) ? floatval( $item['price_month'] ) : 0;
+        $payment_period_years        = isset( $item['payment_period_years'] ) ? floatval( $item['payment_period_years'] ) : 0;
         $image                       = isset( $item['image'] ) ? esc_url_raw( $item['image'] ) : '';
         $cleaning_functions          = isset( $item['cleaning_functions'] ) ? sanitize_text_field( $item['cleaning_functions'] ) : '';
         $dimensions_width            = isset( $item['dimensions_width'] ) ? floatval( $item['dimensions_width'] ) : 0;
@@ -117,6 +133,9 @@ function my_plugin_sanitize_options( $input ) {
         $options[] = array(
             'name'                      => $name,
             'meters'                    => $meters,
+            'price'                     => $price,
+            'price_month'               => $price_month,
+            'payment_period_years'      => $payment_period_years,
             'image'                     => $image,
             'cleaning_functions'        => $cleaning_functions,
             'dimensions_width'          => $dimensions_width,
@@ -197,7 +216,17 @@ function my_plugin_options_page() {
                         </p>
                         <p>
                             <label>Price:
-                                <input type="number" step="any" name="my_plugin_options[<?php echo $index; ?>][euro]" value="<?php echo esc_attr( $item['euro'] ?? '' ); ?>" />
+                                <input type="number" step="any" name="my_plugin_options[<?php echo $index; ?>][price]" value="<?php echo esc_attr( $item['price'] ?? '' ); ?>" />
+                            </label>
+                        </p>
+                        <p>
+                            <label>Monthly Price:
+                                <input type="number" step="any" name="my_plugin_options[<?php echo $index; ?>][price_month]" value="<?php echo esc_attr( $item['price_month'] ?? '' ); ?>" />
+                            </label>
+                        </p>
+                        <p>
+                            <label>Payment period (years):
+                                <input type="number" step="1" min="0" name="my_plugin_options[<?php echo $index; ?>][payment_period_years]" value="<?php echo esc_attr( $item['payment_period_years'] ?? '' ); ?>" />
                             </label>
                         </p>
                         <p>
@@ -339,6 +368,12 @@ function my_plugin_options_page() {
                         item.querySelectorAll('input').forEach(function(input){
                             if ( input.name.indexOf('[name]') !== -1 ) {
                                 input.name = 'my_plugin_options[' + idx + '][name]';
+                            } else if ( input.name.indexOf('[price]') !== -1 || input.name.indexOf('[euro]') !== -1 ) {
+                                input.name = 'my_plugin_options[' + idx + '][price]';
+                            } else if ( input.name.indexOf('[price_month]') !== -1 ) {
+                                input.name = 'my_plugin_options[' + idx + '][price_month]';
+                            } else if ( input.name.indexOf('[payment_period_years]') !== -1 ) {
+                                input.name = 'my_plugin_options[' + idx + '][payment_period_years]';
                             } else if ( input.name.indexOf('[meters]') !== -1 ) {
                                 input.name = 'my_plugin_options[' + idx + '][meters]';
                             } else if ( input.name.indexOf('[cleaning_functions]') !== -1 ) {
@@ -416,6 +451,9 @@ function my_plugin_options_page() {
                         '<div class="my-plugin-cleaning-robot">' +
                             '<h4>Cleaning robot ' + (index + 1) + '</h4>' +
                             '<p><label>Name: <input type="text" name="my_plugin_options[' + index + '][name]" value="" /></label></p>' +
+                            '<p><label>Price: <input type="number" step="any" name="my_plugin_options[' + index + '][price]" value="" /></label></p>' +
+                            '<p><label>Monthly Price: <input type="number" step="any" name="my_plugin_options[' + index + '][price_month]" value="" /></label></p>' +
+                            '<p><label>Payment period (years): <input type="number" step="1" min="0" name="my_plugin_options[' + index + '][payment_period_years]" value="" /></label></p>' +
                             '<p><label>Performance threshold (m²/h): <input type="number" step="any" name="my_plugin_options[' + index + '][meters]" value="" /></label></p>' +
                             '<p><label>Cleaning functions: <input type="text" name="my_plugin_options[' + index + '][cleaning_functions]" value="" placeholder="Vegen, Stofzuigen, Dweilen, Stofwissen" /></label></p>' +
                             '<p><label>Dimensions (Width x Depth x Height) in mm: <input type="number" step="any" min="0" name="my_plugin_options[' + index + '][dimensions_width]" value="" placeholder="616" /> x <input type="number" step="any" min="0" name="my_plugin_options[' + index + '][dimensions_depth]" value="" placeholder="550" /> x <input type="number" step="any" min="0" name="my_plugin_options[' + index + '][dimensions_height]" value="" placeholder="690" /> mm</label></p>' +

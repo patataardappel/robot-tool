@@ -56,12 +56,27 @@ function my_plugin_form_shortcode( $atts ) {
 
         <div>
             <label class="label-text">groote om schoon te maken in m²:</label>
-            <input type="number" name="meters" class="custom-input" placeholder="bijv. 700" required />
+            <input type="number" name="meters" class="custom-input" required />
         </div>
 
         <div>
             <label class="label-text">gewenste inzet tijd minuten:</label>
-            <input type="number" name="minutes" class="custom-input" placeholder="bijv. 60" required />
+            <input type="number" name="minutes" class="custom-input" required />
+        </div>
+
+        <div>
+            <label class="label-text">schoonmaakuur per week:</label>
+            <input type="number" step="0.1" name="cleaning_hours_per_week" class="custom-input" required />
+        </div>
+
+        <div>
+            <label class="label-text">uurloon(€):</label>
+            <input type="number" step="0.01" name="hourly_wage" class="custom-input" required />
+        </div>
+
+        <div>
+            <label class="label-text">aantal werknemers:</label>
+            <input type="number" step="1" min="1" name="employees" class="custom-input" required />
         </div>
 
         <div class="pt-8 flex justify-between items-center">
@@ -69,9 +84,6 @@ function my_plugin_form_shortcode( $atts ) {
                 class="text-gray-400 font-medium hover:text-gray-600 transition-colors">Terug</button>
             <button class="btn-verder btn-active" type="submit">
                 Verder
-                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path d="M5 12h14M12 5l7 7-7 7" />
-                </svg>
             </button>
         </div>
     </form>
