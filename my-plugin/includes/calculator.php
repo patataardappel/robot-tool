@@ -51,6 +51,14 @@ function my_plugin_calculate_display( $meters, $minutes, $floor_type = '', $week
     $annual_savings = $annual_cost - $total_cost_with_robot;
     $payback_months = $annual_savings > 0 ? (($robot_price_month * 12) / $annual_savings) * 12 : 0;
 
+    // Comparison metrics for chart
+    $availability_robot = 24;
+    $availability_manual = round( min( 24, ( $weekly_hours / 7 ) ), 1 );
+    $cleaning_per_hour_robot = floatval( $selected_item['meters'] ?? 1000 );
+    $cleaning_per_hour_manual = round( $adjusted_rate, 0 );
+    $robot_absence = 1; // days per year for maintenance/downtime
+    $manual_absence = max( 5, round( $weekly_hours / 10 ) );
+
     ob_start();
     ?>
 
@@ -106,7 +114,7 @@ function my_plugin_calculate_display( $meters, $minutes, $floor_type = '', $week
 
             <!-- Button -->
             <div>
-                <button class="cta-button text-white text-xl font-medium px-10 py-4 rounded-full shadow-lg">
+                <button class="btn-verder btn-active">
                     Offerte aanvragen
                 </button>
             </div>
@@ -117,22 +125,22 @@ function my_plugin_calculate_display( $meters, $minutes, $floor_type = '', $week
         <div class="stats-row mb-8">
             <div class="stat-card stat-card-blue">
                 <p class="text-sm opacity-90">Totale kosten besparing</p>
-                <h2 class="text-3xl font-bold mt-1">€<?php echo number_format($annual_savings, 0, ',', '.'); ?></h2>
+                <h2 class="text-xl font-bold mt-1">€<?php echo number_format($annual_savings, 0, ',', '.'); ?></h2>
                 <p class="text-xs mt-2 opacity-75">Per jaar</p>
             </div>
             <div class="stat-card">
                 <p class="text-sm text-gray-500">kosten robot</p>
-                <h2 class="text-3xl font-bold mt-1 text-gray-800">€<?php echo number_format($total_cost_with_robot, 0, ',', '.'); ?></h2>
+                <h2 class="text-xl font-bold mt-1 text-gray-800">€<?php echo number_format($total_cost_with_robot, 0, ',', '.'); ?></h2>
                 <p class="text-xs mt-2 text-gray-400">Per jaar (incl. assistentie)</p>
             </div>
             <div class="stat-card">
                 <p class="text-sm text-gray-500">Kosten handmatig</p>
-                <h2 class="text-3xl font-bold mt-1 text-gray-800">€<?php echo number_format($annual_cost, 0, ',', '.'); ?></h2>
+                <h2 class="text-xl font-bold mt-1 text-gray-800">€<?php echo number_format($annual_cost, 0, ',', '.'); ?></h2>
                 <p class="text-xs mt-2 text-gray-400">Per jaar</p>
             </div>
             <div class="stat-card">
                 <p class="text-sm text-gray-500">terugverdientijd</p>
-                <h2 class="text-3xl font-bold mt-1 text-gray-800"><?php echo round($payback_months); ?></h2>
+                <h2 class="text-xl font-bold mt-1 text-gray-800"><?php echo round($payback_months); ?></h2>
                 <p class="text-xs mt-2 text-gray-400">maanden</p>
             </div>
         </div>
@@ -159,128 +167,126 @@ function my_plugin_calculate_display( $meters, $minutes, $floor_type = '', $week
                     </button>
                 </div>
             </div>
-            <div class="h-64">
+
+            <div id="lineChartContainer" class="h-64">
                 <canvas id="roiChart"></canvas>
             </div>
-        </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Left Sliders (Visual only for now) -->
-            <div class="space-y-8">
-                <div>
-                    <div class="flex justify-between mb-2">
-                        <span class="text-sm font-medium text-gray-700">Medewerkers</span>
-                        <span class="text-sm font-bold text-blue-600"><?php echo esc_html($meters > 2000 ? 4 : 2); ?></span>
+            <div id="barChartsContainer" class="hidden flex flex-row flex-nowrap w-full gap-4 overflow-x-auto pb-4">
+                <div class="sub-chart flex-1 min-w-[100px]">
+                    <h4 class="text-center mb-2 text-sm font-medium">Beschikbaarheid</h4>
+                    <div class="h-32">
+                        <canvas id="chartAvail"></canvas>
                     </div>
-                    <input type="range" min="1" max="10" value="4" class="slider-custom">
                 </div>
-                <div>
-                    <div class="flex justify-between mb-2">
-                        <span class="text-sm font-medium text-gray-700">Uurloon medewerker</span>
-                        <span class="text-sm font-bold text-blue-600">€<?php echo esc_html($hourly_wage); ?></span>
+                <div class="sub-chart flex-1 min-w-[100px]">
+                    <h4 class="text-center mb-2 text-sm font-medium">Kosten/jaar</h4>
+                    <div class="h-32">
+                        <canvas id="chartCosts"></canvas>
                     </div>
-                    <input type="range" min="10" max="30" value="<?php echo $hourly_wage; ?>" class="slider-custom">
                 </div>
-                <div>
-                    <div class="flex justify-between mb-2">
-                        <span class="text-sm font-medium text-gray-700">Schoonmaak per week (uren)</span>
-                        <span class="text-sm font-bold text-blue-600"><?php echo esc_html($weekly_hours); ?></span>
+                <div class="sub-chart flex-1 min-w-[100px]">
+                    <h4 class="text-center mb-2 text-sm font-medium">m² per uur</h4>
+                    <div class="h-32">
+                        <canvas id="chartCleaning"></canvas>
                     </div>
-                    <input type="range" min="1" max="168" value="<?php echo $weekly_hours; ?>" class="slider-custom">
+                </div>
+                <div class="sub-chart flex-1 min-w-[100px]">
+                    <h4 class="text-center mb-2 text-sm font-medium">Verzuim/jaar</h4>
+                    <div class="h-32">
+                        <canvas id="chartAbsence"></canvas>
+                    </div>
+                    
                 </div>
             </div>
-
-            <!-- Right: Comparison Table -->
-            <div class="lg:col-span-2 bg-white rounded-2xl border border-e5e7eb overflow-hidden">
-                <div class="bg-[#007bb6] text-white p-4 font-bold text-lg">
-                    Vergelijking
-                </div>
-                <table class="w-full comparison-table">
-                    <thead>
-                        <tr>
-                            <th>Parameter</th>
-                            <th><?php echo esc_html($robot_name ?: 'Robot'); ?></th>
-                            <th>Handmatig</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td class="text-gray-500 text-sm italic">efficiency (m²/hour)</td>
-                            <td><?php echo esc_html($selected_item['meters'] ?? 1000); ?> (m²/h)</td>
-                            <td><?php echo esc_html(round($adjusted_rate, 0)); ?> (m²/h)</td>
-                        </tr>
-                        <tr>
-                            <td class="text-gray-500 text-sm italic">maandelijkse kost</td>
-                            <td>€<?php echo number_format($robot_price_month, 2); ?></td>
-                            <td>€<?php echo number_format($weekly_cost * 4.33, 2); ?></td>
-                        </tr>
-                        <tr>
-                            <td class="text-gray-500 text-sm italic">Besparing per jaar</td>
-                            <td class="text-green-600 font-bold">€<?php echo number_format($annual_savings, 0, ',', '.'); ?></td>
-                            <td>€0</td>
-                        </tr>
-                        <tr class="active-row">
-                            <td class="text-gray-700">Totale Kosten per jaar</td>
-                            <td class="text-blue-600">€<?php echo number_format($total_cost_with_robot, 0, ',', '.'); ?></td>
-                            <td class="text-gray-900 font-bold">€<?php echo number_format($annual_cost, 0, ',', '.'); ?></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
         </div>
-    </div>
+
+    <style>
+        /* Force horizontal layout even if Tailwind is overridden by theme CSS */
+        #barChartsContainer:not(.hidden) {
+            display: flex !important;
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+            align-items: flex-start;
+        }
+        .sub-chart {
+            flex: 1 1 200px; /* Grow, Shrink, Basis */
+        }
+    </style>
 
     <script>
         let myChart;
-        const ctx = document.getElementById('roiChart').getContext('2d');
+        let chartAvail, chartCosts, chartCleaning, chartAbsence;
 
         function initChart(type = 'line') {
             if (myChart) myChart.destroy();
-            
-            // Generate cumulative monthly data based on annual costs
-            const annualManual = <?php echo $annual_cost; ?>;
-            const annualRobot = <?php echo $total_cost_with_robot; ?>;
-            const labels = ['Maand 0', 'Maand 2', 'Maand 4', 'Maand 6', 'Maand 8', 'Maand 10', 'Maand 12'];
-            const months = [0, 2, 4, 6, 8, 10, 12];
+            if (chartAvail) chartAvail.destroy();
+            if (chartCosts) chartCosts.destroy();
+            if (chartCleaning) chartCleaning.destroy();
+            if (chartAbsence) chartAbsence.destroy();
 
-            const manualData = months.map(month => (annualManual / 12) * month);
-            const robotData = months.map(month => (annualRobot / 12) * month);
+            const lineContainer = document.getElementById('lineChartContainer');
+            const barContainer = document.getElementById('barChartsContainer');
 
-            const data = {
-                labels: labels,
-                datasets: [
-                    {
-                        label: 'Robot',
-                        data: robotData,
-                        borderColor: '#f87171',
-                        backgroundColor: '#f8717122',
-                        borderWidth: 3,
-                        fill: type === 'line'
+            if (type === 'line') {
+                lineContainer.classList.remove('hidden');
+                barContainer.classList.add('hidden');
+
+                const ctx = document.getElementById('roiChart').getContext('2d');
+                const annualManual = <?php echo $annual_cost; ?>;
+                const annualRobot = <?php echo $total_cost_with_robot; ?>;
+                const labels = ['M0', 'M2', 'M4', 'M6', 'M8', 'M10', 'M12', 'M14', 'M16', 'M18', 'M20', 'M22', 'M24'];
+                const months = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24];
+
+                myChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            { label: 'Robot', data: months.map(m => (annualRobot/12)*m), borderColor: '#f87171', backgroundColor: '#f8717122', borderWidth: 3, fill: true },
+                            { label: 'Handmatig', data: months.map(m => (annualManual/12)*m), borderColor: '#4f46e5', backgroundColor: '#4f46e522', borderWidth: 3, fill: true }
+                        ]
                     },
-                    {
-                        label: 'Handmatig',
-                        data: manualData,
-                        borderColor: '#4f46e5',
-                        backgroundColor: '#4f46e522',
-                        borderWidth: 3,
-                        fill: type === 'line'
-                    }
-                ]
-            };
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                });
+            } else {
+                lineContainer.classList.add('hidden');
+                barContainer.classList.remove('hidden');
 
-            myChart = new Chart(ctx, {
-                type: type,
-                data: data,
-                options: {
+                // Standard Chart.js bar config
+                const barOptions = {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
-                    scales: {
-                        y: { beginAtZero: true, grid: { color: '#f3f4f6' } },
-                        x: { grid: { display: false } }
-                    }
-                }
-            });
+                    scales: { y: { beginAtZero: true } },
+                    barPercentage: 0.4
+                };
+
+                // Init all 4 bar charts
+                chartAvail = new Chart(document.getElementById('chartAvail'), {
+                    type: 'bar',
+                    data: { labels: ['Robot', 'Handm.'], datasets: [{ data: [<?php echo $availability_robot; ?>, <?php echo $availability_manual; ?>], backgroundColor: ['#f87171', '#4f46e5'] }] },
+                    options: barOptions
+                });
+
+                chartCosts = new Chart(document.getElementById('chartCosts'), {
+                    type: 'bar',
+                    data: { labels: ['Robot', 'Handm.'], datasets: [{ data: [<?php echo $total_cost_with_robot; ?>, <?php echo $annual_cost; ?>], backgroundColor: ['#f87171', '#4f46e5'] }] },
+                    options: barOptions
+                });
+
+                chartCleaning = new Chart(document.getElementById('chartCleaning'), {
+                    type: 'bar',
+                    data: { labels: ['Robot', 'Handm.'], datasets: [{ data: [<?php echo $cleaning_per_hour_robot; ?>, <?php echo $cleaning_per_hour_manual; ?>], backgroundColor: ['#f87171', '#4f46e5'] }] },
+                    options: barOptions
+                });
+
+                chartAbsence = new Chart(document.getElementById('chartAbsence'), {
+                    type: 'bar',
+                    data: { labels: ['Robot', 'Handm.'], datasets: [{ data: [<?php echo $robot_absence; ?>, <?php echo $manual_absence; ?>], backgroundColor: ['#f87171', '#4f46e5'] }] },
+                    options: barOptions
+                });
+            }
         }
 
         function updateChart(type) { initChart(type); }

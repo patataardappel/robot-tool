@@ -119,7 +119,6 @@ function my_plugin_sanitize_options( $input ) {
         $charge_time                 = isset( $item['charge_time'] ) ? floatval( $item['charge_time'] ) : 0;
         $max_run_time                = isset( $item['max_run_time'] ) ? floatval( $item['max_run_time'] ) : 0;
         $cleaning_width              = isset( $item['cleaning_width'] ) ? sanitize_text_field( $item['cleaning_width'] ) : '';
-        $cleaning_efficiency         = isset( $item['cleaning_efficiency'] ) ? floatval( $item['cleaning_efficiency'] ) : 0;
         $total_capacity_per_use      = isset( $item['total_capacity_per_use'] ) ? floatval( $item['total_capacity_per_use'] ) : 0;
         $clean_water_tank_capacity   = isset( $item['clean_water_tank_capacity'] ) ? floatval( $item['clean_water_tank_capacity'] ) : 0;
         $dirty_water_tank_capacity   = isset( $item['dirty_water_tank_capacity'] ) ? floatval( $item['dirty_water_tank_capacity'] ) : 0;
@@ -147,7 +146,6 @@ function my_plugin_sanitize_options( $input ) {
             'charge_time'               => $charge_time,
             'max_run_time'              => $max_run_time,
             'cleaning_width'            => $cleaning_width,
-            'cleaning_efficiency'       => $cleaning_efficiency,
             'total_capacity_per_use'    => $total_capacity_per_use,
             'clean_water_tank_capacity' => $clean_water_tank_capacity,
             'dirty_water_tank_capacity' => $dirty_water_tank_capacity,
@@ -230,7 +228,7 @@ function my_plugin_options_page() {
                             </label>
                         </p>
                         <p>
-                            <label>Performance threshold (m²/h):
+                            <label>Cleaning efficiency (m²/h):
                                 <input type="number" step="any" name="my_plugin_options[<?php echo $index; ?>][meters]" value="<?php echo esc_attr( $item['meters'] ?? '' ); ?>" />
                             </label>
                         </p>
@@ -270,11 +268,6 @@ function my_plugin_options_page() {
                         <p>
                             <label>Cleaning width (m²):
                                 <input type="number" step="any" min="0" name="my_plugin_options[<?php echo $index; ?>][cleaning_width]" value="<?php echo esc_attr( $item['cleaning_width'] ?? '' ); ?>" placeholder="560" />
-                            </label>
-                        </p>
-                        <p>
-                            <label>Cleaning efficiency (m²/h):
-                                <input type="number" step="any" min="0" name="my_plugin_options[<?php echo $index; ?>][cleaning_efficiency]" value="<?php echo esc_attr( $item['cleaning_efficiency'] ?? '' ); ?>" placeholder="1100" />
                             </label>
                         </p>
                         <p>
@@ -396,8 +389,6 @@ function my_plugin_options_page() {
                                 input.name = 'my_plugin_options[' + idx + '][max_run_time]';
                             } else if ( input.name.indexOf('[cleaning_width]') !== -1 ) {
                                 input.name = 'my_plugin_options[' + idx + '][cleaning_width]';
-                            } else if ( input.name.indexOf('[cleaning_efficiency]') !== -1 ) {
-                                input.name = 'my_plugin_options[' + idx + '][cleaning_efficiency]';
                             } else if ( input.name.indexOf('[total_capacity_per_use]') !== -1 ) {
                                 input.name = 'my_plugin_options[' + idx + '][total_capacity_per_use]';
                             } else if ( input.name.indexOf('[clean_water_tank_capacity]') !== -1 ) {
@@ -454,7 +445,7 @@ function my_plugin_options_page() {
                             '<p><label>Price: <input type="number" step="any" name="my_plugin_options[' + index + '][price]" value="" /></label></p>' +
                             '<p><label>Monthly Price: <input type="number" step="any" name="my_plugin_options[' + index + '][price_month]" value="" /></label></p>' +
                             '<p><label>Payment period (years): <input type="number" step="1" min="0" name="my_plugin_options[' + index + '][payment_period_years]" value="" /></label></p>' +
-                            '<p><label>Performance threshold (m²/h): <input type="number" step="any" name="my_plugin_options[' + index + '][meters]" value="" /></label></p>' +
+                            '<p><label>Cleaning efficiency (m²/h): <input type="number" step="any" name="my_plugin_options[' + index + '][meters]" value="" /></label></p>' +
                             '<p><label>Cleaning functions: <input type="text" name="my_plugin_options[' + index + '][cleaning_functions]" value="" placeholder="Vegen, Stofzuigen, Dweilen, Stofwissen" /></label></p>' +
                             '<p><label>Dimensions (Width x Depth x Height) in mm: <input type="number" step="any" min="0" name="my_plugin_options[' + index + '][dimensions_width]" value="" placeholder="616" /> x <input type="number" step="any" min="0" name="my_plugin_options[' + index + '][dimensions_depth]" value="" placeholder="550" /> x <input type="number" step="any" min="0" name="my_plugin_options[' + index + '][dimensions_height]" value="" placeholder="690" /> mm</label></p>' +
                             '<p><label>Weight (kg): <input type="number" step="any" min="0" name="my_plugin_options[' + index + '][weight]" value="" placeholder="70" /></label></p>' +
@@ -462,7 +453,6 @@ function my_plugin_options_page() {
                             '<p><label>Charge time (hours): <input type="number" step="any" min="0" name="my_plugin_options[' + index + '][charge_time]" value="" placeholder="2" /></label></p>' +
                             '<p><label>Maximum run time (hours): <input type="number" step="any" min="0" name="my_plugin_options[' + index + '][max_run_time]" value="" placeholder="5" /></label></p>' +
                             '<p><label>Cleaning width: <input type="number" step="any" min="0" name="my_plugin_options[' + index + '][cleaning_width]" value="" placeholder="560" /></label></p>' +
-                            '<p><label>Cleaning efficiency (m²/h): <input type="number" step="any" min="0" name="my_plugin_options[' + index + '][cleaning_efficiency]" value="" placeholder="1100" /></label></p>' +
                             '<p><label>Total capacity per use (m²): <input type="number" step="any" min="0" name="my_plugin_options[' + index + '][total_capacity_per_use]" value="" placeholder="4500" /></label></p>' +
                             '<p><label>Clean water tank capacity (liters): <input type="number" step="any" min="0" name="my_plugin_options[' + index + '][clean_water_tank_capacity]" value="" placeholder="16" /></label></p>' +
                             '<p><label>Dirty water tank capacity (liters): <input type="number" step="any" min="0" name="my_plugin_options[' + index + '][dirty_water_tank_capacity]" value="" placeholder="14" /></label></p>' +

@@ -65,17 +65,17 @@ function my_plugin_form_shortcode( $atts ) {
         </div>
 
         <div>
-            <label class="label-text">schoonmaakuur per week:</label>
+            <label class="label-text">Hoeveel uur per week wordt er schoongemaakt?</label>
             <input type="number" step="0.1" name="cleaning_hours_per_week" class="custom-input" required />
         </div>
 
         <div>
-            <label class="label-text">uurloon(€):</label>
+            <label class="label-text">Wat is het uurloon</label>
             <input type="number" step="0.01" name="hourly_wage" class="custom-input" required />
         </div>
 
         <div>
-            <label class="label-text">aantal werknemers:</label>
+            <label class="label-text">Hoeveel schoonmakers zijn er gemiddeld aanwezig?</label>
             <input type="number" step="1" min="1" name="employees" class="custom-input" required />
         </div>
 
