@@ -65,141 +65,154 @@ function my_plugin_calculate_display( $meters, $minutes, $floor_type = '', $week
     
     <div class="dashboard-container">
 
-    <!-- Main Component Card -->
-    <div class="robot-recommendation-card">
-        <!-- Left Side: Visual -->
-        <div class="robot-image-section">
-            <div class="robot-container">
-                <!-- Dynamic image based on robot, fallback to placeholder -->
-                <img src="<?php echo esc_url( $selected_item['image'] ?? 'https://placehold.co/400x400/e2e8f0/64748b?text=' . urlencode($robot_name) ); ?>" 
-                     alt="<?php echo esc_attr($robot_name); ?> Robot" 
-                     onerror="this.onerror=null; this.src='https://placehold.co/400x400/e2e8f0/64748b?text=Robot';">
-            </div>
-        </div>
-
-        <!-- Right Side: Content -->
-        <div class="robot-content-section">
-            <div>
-                <h1 class="robot-title">De <?php echo esc_html($robot_name); ?></h1>
-                <p class="robot-subtitle">Is de juiste robot voor u</p>
-            </div>
-
-            <!-- Features List -->
-            <ul class="robot-features">
-                <li>
-                    <div class="check-icon-wrapper">
-                        <svg class="check-icon" width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                        </svg>
-                    </div>
-                    <span>Geschikt voor uw vloer</span>
-                </li>
-                <li>
-                    <div class="check-icon-wrapper">
-                        <svg class="check-icon" width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                        </svg>
-                    </div>
-                    <span><?php echo esc_html($selected_item['cleaning_functions'] ?? 'Vegen'); ?></span>
-                </li>
-                <li>
-                    <div class="check-icon-wrapper">
-                        <svg class="check-icon" width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                        </svg>
-                    </div>
-                    <span><?php echo esc_html($selected_item['meters'] ?? 1000); ?> m² per uur</span>
-                </li>
-            </ul>
-
-            <!-- Button -->
-            <div>
-                <button class="btn-verder btn-active">
-                    Offerte aanvragen
-                </button>
-            </div>
-        </div>
-
-</div>
-        <!-- Top Stats Row -->
-        <div class="stats-row mb-8">
-            <div class="stat-card stat-card-blue">
-                <p class="text-sm opacity-90">Totale kosten besparing</p>
-                <h2 class="text-xl font-bold mt-1">€<?php echo number_format($annual_savings, 0, ',', '.'); ?></h2>
-                <p class="text-xs mt-2 opacity-75">Per jaar</p>
-            </div>
-            <div class="stat-card">
-                <p class="text-sm text-gray-500">kosten robot</p>
-                <h2 class="text-xl font-bold mt-1 text-gray-800">€<?php echo number_format($total_cost_with_robot, 0, ',', '.'); ?></h2>
-                <p class="text-xs mt-2 text-gray-400">Per jaar (incl. assistentie)</p>
-            </div>
-            <div class="stat-card">
-                <p class="text-sm text-gray-500">Kosten handmatig</p>
-                <h2 class="text-xl font-bold mt-1 text-gray-800">€<?php echo number_format($annual_cost, 0, ',', '.'); ?></h2>
-                <p class="text-xs mt-2 text-gray-400">Per jaar</p>
-            </div>
-            <div class="stat-card">
-                <p class="text-sm text-gray-500">terugverdientijd</p>
-                <h2 class="text-xl font-bold mt-1 text-gray-800"><?php echo round($payback_months); ?></h2>
-                <p class="text-xs mt-2 text-gray-400">maanden</p>
-            </div>
-        </div>
-
-        <!-- Chart Section -->
-        <div class="chart-container">
-            <div class="flex justify-between items-center mb-6">
-                <div class="flex gap-4">
-                    <div class="flex items-center gap-2">
-                        <div class="w-3 h-3 rounded-full bg-red-400"></div>
-                        <span class="text-xs text-gray-500">Robot</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <div class="w-3 h-3 rounded-full bg-indigo-600"></div>
-                        <span class="text-xs text-gray-500">Handmatige schoonmaak</span>
-                    </div>
+        <div class="robot-recommendation-card">
+            <div class="robot-image-section">
+                <div class="robot-container">
+                    <img src="<?php echo esc_url( $selected_item['image'] ?? 'https://placehold.co/400x400/e2e8f0/64748b?text=' . urlencode($robot_name) ); ?>" alt="Robot">
                 </div>
-                <div class="flex gap-2">
-                    <button onclick="updateChart('line')" class="toggle-btn">
-                        <svg width="20" height="20" fill="none" stroke="#007bb6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+            </div>
+            <div class="robot-content-section">
+                <div>
+                    <h1 class="robot-title">De <?php echo esc_html($robot_name); ?></h1>
+                    <p class="robot-subtitle">Is de juiste robot voor u</p>
+                </div>
+                <ul class="robot-features">
+                    <li><div class="check-icon-wrapper"><svg class="check-icon" width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg></div><span>Geschikt voor uw vloer</span></li>
+                    <li><div class="check-icon-wrapper"><svg class="check-icon" width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg></div><span>Vegen schrobben en dwijlen</span></li>
+                    <li><div class="check-icon-wrapper"><svg class="check-icon" width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg></div><span><?php echo esc_html($selected_item['meters'] ?? 1100); ?> m2 per uur</span></li>
+                </ul>
+                <button class="btn-verder btn-active">Offerte aanvragen</button>
+            </div>
+        </div>
+
+        <div class="layout-grid-wrapper">
+            
+            <aside class="sidebar-column">
+                <div class="sidebar-controls">
+                    <button class="btn-verder" style="border: 1px solid #007bb6; background: transparent; color: #007bb6; width: 100%; margin-bottom: 12px;">
+                        Download resultaten <span>↓</span>
                     </button>
-                    <button onclick="updateChart('bar')" class="toggle-btn">
-                        <svg width="20" height="20" fill="none" stroke="#007bb6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                    <button class="btn-verder btn-active" style="width: 100%; margin-bottom: 30px;">
+                        Demo aan vragen
                     </button>
-                </div>
-            </div>
 
-            <div id="lineChartContainer" class="h-64">
-                <canvas id="roiChart"></canvas>
-            </div>
+                    <div class="control-group">
+                        <label class="label-text">Andere robot vergelijken</label>
+                        <div class="select-wrapper">
+                            <select class="custom-input">
+                                <option><?php echo esc_html($robot_name); ?></option>
+                            </select>
+                        </div>
+                    </div>
 
-            <div id="barChartsContainer" class="hidden flex flex-row flex-nowrap w-full gap-4 overflow-x-auto pb-4">
-                <div class="sub-chart flex-1 min-w-[100px]">
-                    <h4 class="text-center mb-2 text-sm font-medium">Beschikbaarheid</h4>
-                    <div class="h-32">
-                        <canvas id="chartAvail"></canvas>
+                    <div class="slider-group">
+                        <div class="slider-label-row">
+                            <label class="label-text">Medewerkers</label>
+                            <span class="slider-val-display">4</span>
+                        </div>
+                        <input type="range" class="slider-custom" min="1" max="10" value="4">
+                    </div>
+
+                    <div class="slider-group">
+                        <div class="slider-label-row">
+                            <label class="label-text">Uurloon medewerker</label>
+                            <span class="slider-val-display">€15</span>
+                        </div>
+                        <input type="range" class="slider-custom" min="10" max="50" value="15">
+                    </div>
+
+                    <div class="slider-group">
+                        <div class="slider-label-row">
+                            <label class="label-text">Schoonmaak per week (uren)</label>
+                            <span class="slider-val-display">20</span>
+                        </div>
+                        <input type="range" class="slider-custom" min="1" max="60" value="20">
                     </div>
                 </div>
-                <div class="sub-chart flex-1 min-w-[100px]">
-                    <h4 class="text-center mb-2 text-sm font-medium">Kosten/jaar</h4>
-                    <div class="h-32">
-                        <canvas id="chartCosts"></canvas>
-                    </div>
-                </div>
-                <div class="sub-chart flex-1 min-w-[100px]">
-                    <h4 class="text-center mb-2 text-sm font-medium">m² per uur</h4>
-                    <div class="h-32">
-                        <canvas id="chartCleaning"></canvas>
-                    </div>
-                </div>
-                <div class="sub-chart flex-1 min-w-[100px]">
-                    <h4 class="text-center mb-2 text-sm font-medium">Verzuim/jaar</h4>
-                    <div class="h-32">
-                        <canvas id="chartAbsence"></canvas>
-                    </div>
+            </aside>
+
+            <main class="results-column">
+                <h2 class="results-title">De <?php echo esc_html($robot_name); ?></h2>
+                
+                <div class="stats-chart-split">
                     
-                </div>
+                    <div class="vertical-stat-stack">
+                        <div class="stat-card stat-card-blue">
+                            <p class="text-sm">Totale kosten besparing</p>
+                            <h2 class="text-xl font-bold">€<?php echo number_format($annual_savings, 0, ',', '.'); ?></h2>
+                            <p class="text-xs opacity-75">Per jaar</p>
+                        </div>
+                        <div class="stat-card">
+                            <p class="text-sm text-gray-500">kosten robot</p>
+                            <h2 class="text-xl font-bold text-gray-800">€<?php echo number_format($total_cost_with_robot, 0, ',', '.'); ?></h2>
+                            <p class="text-xs text-gray-400">Per jaar</p>
+                        </div>
+                        <div class="stat-card">
+                            <p class="text-sm text-gray-500">Kosten handmatig</p>
+                            <h2 class="text-xl font-bold text-gray-800">€<?php echo number_format($annual_cost, 0, ',', '.'); ?></h2>
+                            <p class="text-xs text-gray-400">Per jaar</p>
+                        </div>
+                    </div>
+
+<div class="chart-container">
+    <div class="flex justify-between items-center mb-6">
+        <div class="flex gap-4">
+            <div class="flex items-center gap-2">
+                <div class="w-3 h-3 rounded-full bg-red-400"></div>
+                <span class="text-xs text-gray-500">Robot</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="w-3 h-3 rounded-full bg-indigo-600"></div>
+                <span class="text-xs text-gray-500">Handmatige schoonmaak</span>
             </div>
         </div>
+        <div class="flex gap-2">
+            <button onclick="updateChart('line')" class="toggle-btn">📈</button>
+            <button onclick="updateChart('bar')" class="toggle-btn">📊</button>
+        </div>
+    </div>
+
+    <div id="lineChartContainer" class="h-64">
+        <canvas id="roiChart"></canvas>
+    </div>
+
+    <div id="barChartsContainer" class="hidden">
+        <div class="grid grid-cols-2 gap-4">
+            <div class="h-32"><canvas id="chartAvail"></canvas></div>
+            <div class="h-32"><canvas id="chartCosts"></canvas></div>
+            <div class="h-32"><canvas id="chartCleaning"></canvas></div>
+            <div class="h-32"><canvas id="chartAbsence"></canvas></div>
+        </div>
+    </div>
+</div>
+                </div>
+
+                <div class="comparison-table-wrapper" style="margin-top: 30px;">
+                    <div class="stat-card" style="padding: 0; overflow: hidden;">
+                        <div style="background: #007bb6; color: white; padding: 15px 20px; font-weight: bold;">Vergelijking</div>
+                        <table class="comparison-table" style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr>
+                                    <th style="text-align: left; padding: 12px 20px;">Parameter</th>
+                                    <th style="text-align: left; padding: 12px 20px;">Keenon C40</th>
+                                    <th style="text-align: left; padding: 12px 20px;">Handmatig</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>efficiency (m²/hour)</td><td>1000 (m²/hour)</td><td>700 (m²/hour)</td></tr>
+                                <tr><td>Initiele kost</td><td>€40.000</td><td>€0</td></tr>
+                                <tr><td>kosten per m2</td><td>€16</td><td>€23</td></tr>
+                                <tr><td>schoonmaak tijd ruimte</td><td>87 minuten</td><td>103 minuten</td></tr>
+                                <tr><td>Inzetbaarheid per dag</td><td>16 uur</td><td>4 uur</td></tr>
+                                <tr><td>Foutmarge</td><td>3%</td><td>12%</td></tr>
+                                <tr class="active-row"><td style="font-weight: bold;">Kosten per jaar</td><td style="color: #10b981; font-weight: bold;">€1.100</td><td style="font-weight: bold;">€6.200</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
 
     <style>
         /* Force horizontal layout even if Tailwind is overridden by theme CSS */
