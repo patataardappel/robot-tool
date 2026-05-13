@@ -21,29 +21,68 @@ function my_plugin_form_shortcode( $atts ) {
 
 
 <div class="container-box">
+    <div class="container-box">
+        <h2 class="selection-title">Type soort ruimte</h2>
+
+        <div class="room-selection-grid">
+            <label class="room-option">
+                <input type="radio" name="room_type" value="kantoor" class="room-radio" onchange="enableNextButton()">
+                <div class="room-card-content">
+                    <div class="image-container">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Test.svg/960px-Test.svg.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=thumbnail"
+                            alt="Supermarkt">
+                    </div>
+                    <p class="room-label">Kantoor</p>
+                </div>
+            </label>
+
+            <label class="room-option">
+                <input type="radio" name="room_type" value="sportzaal" class="room-radio" onchange="enableNextButton()">
+                <div class="room-card-content">
+                    <div class="image-container">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Test.svg/960px-Test.svg.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=thumbnail"
+                            alt="Sportzaal">
+                    </div>
+                    <p class="room-label">Sportzaal</p>
+                </div>
+            </label>
+
+            <label class="room-option">
+                <input type="radio" name="room_type" value="supermarkt" class="room-radio"
+                    onchange="enableNextButton()">
+                <div class="room-card-content">
+                    <div class="image-container">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Test.svg/960px-Test.svg.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=thumbnail"
+                            alt="Supermarkt">
+                    </div>
+                    <p class="room-label">Supermarkt</p>
+                </div>
+            </label>
+
+            <label class="room-option">
+                <input type="radio" name="room_type" value="hotel" class="room-radio" onchange="enableNextButton()">
+                <div class="room-card-content">
+                    <div class="image-container">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Test.svg/960px-Test.svg.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=thumbnail"
+                            alt="Supermarkt">
+                    </div>
+                    <p class="room-label">Hotel</p>
+                </div>
+            </label>
+
+            <label class="room-option">
+                <input type="radio" name="room_type" value="gym" class="room-radio" onchange="enableNextButton()">
+                <div class="room-card-content">
+                    <div class="image-container">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Test.svg/960px-Test.svg.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=thumbnail"
+                            alt="Supermarkt">
+                    </div>
+                    <p class="room-label">Gym</p>
+                </div>
+            </label>
+        </div>
+    </div>
     <form action="<?php echo $results_url; ?>" method="post" class="space-y-8">
-        <div>
-            <input type="radio" id="choice1" name="contact" value="email" />
-            <label for="choice1">sporthal</label>
-
-            <input type="radio" id="choice2" name="contact" value="phone" />
-            <label for="choice2">supermarkt</label>
-
-            <input type="radio" id="choice3" name="contact" value="mail" />
-            <label for="choice3">kantoor</label>
-        </div>
-        <div>
-            <label class="label-text">type ruimte:</label>
-            <div class="select-wrapper">
-                <select id="room_type" name="room" class="custom-input">
-                    <option value="sporthal">sporthal</option>
-                    <option value="supermarkt">supermarkt</option>
-                    <option value="kantoor">kantoor</option>
-                    <option value="hotel">hotel</option>
-                </select>
-            </div>
-        </div>
-
         <div>
             <label class="label-text">Vloer type:</label>
             <div class="select-wrapper">
