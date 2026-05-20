@@ -79,6 +79,11 @@ function my_plugin_settings_init() {
         'default'           => array(),
     ) );
 
+    register_setting( 'my_plugin', 'my_plugin_rooms', array(
+        'sanitize_callback' => 'my_plugin_sanitize_rooms',
+        'default'           => array(),
+    ) );
+
     register_setting( 'my_plugin', 'my_plugin_products', array(
         'sanitize_callback' => 'my_plugin_sanitize_products',
         'default'           => array(),
@@ -186,6 +191,40 @@ function my_plugin_sanitize_products( $input ) {
     }
 
     return $products;
+}
+
+function my_plugin_sanitize_rooms( $input ) {
+    $rooms = array();
+
+    if ( ! is_array( $input ) ) {
+        return $rooms;
+    }
+
+    foreach ( $input as $item ) {
+        if ( ! is_array( $item ) ) {
+            continue;
+        }
+
+        $name  = isset( $item['name'] ) ? sanitize_text_field( $item['name'] ) : '';
+        $value = isset( $item['value'] ) ? sanitize_title( $item['value'] ) : '';
+        $image = isset( $item['image'] ) ? esc_url_raw( $item['image'] ) : '';
+
+        if ( $name === '' ) {
+            continue;
+        }
+
+        if ( $value === '' ) {
+            $value = sanitize_title( $name );
+        }
+
+        $rooms[] = array(
+            'name'  => $name,
+            'value' => $value,
+            'image' => $image,
+        );
+    }
+
+    return $rooms;
 }
 
 function my_plugin_options_page() {
@@ -310,6 +349,44 @@ function my_plugin_options_page() {
             </div>
 
             <button type="button" class="button button-primary" id="my-plugin-add-cleaning-robot">Add cleaning robot</button>
+
+            <h2>Room Types</h2>
+            <?php
+            $rooms = get_option( 'my_plugin_rooms', array() );
+            if ( ! is_array( $rooms ) ) {
+                $rooms = array();
+            }
+            ?>
+
+            <div id="my-plugin-rooms">
+                <?php foreach ( $rooms as $index => $room ) : ?>
+                    <div class="my-plugin-room">
+                        <h4>Room type <?php echo ( $index + 1 ); ?></h4>
+                        <p>
+                            <label>Name:
+                                <input type="text" name="my_plugin_rooms[<?php echo $index; ?>][name]" value="<?php echo esc_attr( $room['name'] ?? '' ); ?>" />
+                            </label>
+                        </p>
+                        <p>
+                            <label>Value:
+                                <input type="text" name="my_plugin_rooms[<?php echo $index; ?>][value]" value="<?php echo esc_attr( $room['value'] ?? '' ); ?>" placeholder="kantoor" />
+                            </label>
+                        </p>
+                        <p>
+                            <label>Image URL:
+                                <input type="text" class="my-plugin-image-url" name="my_plugin_rooms[<?php echo $index; ?>][image]" value="<?php echo esc_attr( $room['image'] ?? '' ); ?>" />
+                            </label>
+                            <button type="button" class="button my-plugin-select-image">Select Image</button>
+                        </p>
+                        <p>
+                            <button type="button" class="button my-plugin-remove-room">Remove room</button>
+                        </p>
+                        <hr />
+                    </div>
+                <?php endforeach; ?>
+            </div>
+
+            <button type="button" class="button button-primary" id="my-plugin-add-room">Add room type</button>
 
             <h2>Products</h2>
             <?php
@@ -551,6 +628,82 @@ function my_plugin_options_page() {
                     var newProduct = temp.firstElementChild;
                     productContainer.appendChild( newProduct );
                     bindProductEvents( newProduct );
+                });
+
+                // Room types handling
+                var roomContainer = document.getElementById('my-plugin-rooms');
+                var addRoomButton = document.getElementById('my-plugin-add-room');
+
+                function reIndexRooms() {
+                    var rooms = roomContainer.querySelectorAll('.my-plugin-room');
+                    rooms.forEach(function(room, idx){
+                        room.querySelector('h4').textContent = 'Room type ' + (idx + 1);
+                        room.querySelectorAll('input').forEach(function(input){
+                            if ( input.name.indexOf('[name]') !== -1 ) {
+                                input.name = 'my_plugin_rooms[' + idx + '][name]';
+                            } else if ( input.name.indexOf('[value]') !== -1 ) {
+                                input.name = 'my_plugin_rooms[' + idx + '][value]';
+                            } else if ( input.name.indexOf('[image]') !== -1 ) {
+                                input.name = 'my_plugin_rooms[' + idx + '][image]';
+                            }
+                        });
+                    });
+                }
+
+                function bindRoomEvents( room ) {
+                    var removeBtn = room.querySelector('.my-plugin-remove-room');
+                    var selectBtn = room.querySelector('.my-plugin-select-image');
+
+                    removeBtn.addEventListener('click', function(){
+                        room.remove();
+                        reIndexRooms();
+                    });
+
+                    selectBtn.addEventListener('click', function( e ){
+                        e.preventDefault();
+
+                        if ( typeof wp !== 'undefined' && wp.media ) {
+                            var frame = wp.media({
+                                title: 'Select Image',
+                                button: { text: 'Use this image' },
+                                multiple: false
+                            });
+
+                            frame.on('select', function() {
+                                var attachment = frame.state().get('selection').first().toJSON();
+                                room.querySelector('.my-plugin-image-url').value = attachment.url;
+                            });
+
+                            frame.open();
+                        } else {
+                            alert('Media uploader not available.');
+                        }
+                    });
+                }
+
+                function buildRoomHtml( index ) {
+                    return (
+                        '<div class="my-plugin-room">' +
+                            '<h4>Room type ' + (index + 1) + '</h4>' +
+                            '<p><label>Name: <input type="text" name="my_plugin_rooms[' + index + '][name]" value="" /></label></p>' +
+                            '<p><label>Value: <input type="text" name="my_plugin_rooms[' + index + '][value]" value="" placeholder="kantoor" /></label></p>' +
+                            '<p><label>Image URL: <input type="text" class="my-plugin-image-url" name="my_plugin_rooms[' + index + '][image]" value="" /></label>' +
+                            ' <button type="button" class="button my-plugin-select-image">Select Image</button></p>' +
+                            '<p><button type="button" class="button my-plugin-remove-room">Remove room</button></p>' +
+                            '<hr />' +
+                        '</div>'
+                    );
+                }
+
+                roomContainer.querySelectorAll('.my-plugin-room').forEach(bindRoomEvents);
+
+                addRoomButton.addEventListener('click', function(){
+                    var idx = roomContainer.querySelectorAll('.my-plugin-room').length;
+                    var temp = document.createElement('div');
+                    temp.innerHTML = buildRoomHtml( idx );
+                    var newRoom = temp.firstElementChild;
+                    roomContainer.appendChild( newRoom );
+                    bindRoomEvents( newRoom );
                 });
             })();
             </script>

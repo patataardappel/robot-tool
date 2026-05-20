@@ -23,7 +23,7 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
-/* --- 2. Room Selection (The "Good" Part) --- */
+/* --- 2. Room Selection --- */
 .container-box {
     max-width: 650px;
     margin: 0 auto;
@@ -94,10 +94,9 @@ body {
     font-size: 1rem;
 }
 
-/* --- 3. Dashboard Layout (The Fix) --- */
+/* --- 3. Dashboard Layout & Recommendation Components --- */
 .dashboard-container {
     max-width: 1200px;
-    /* Wider for dashboard */
     margin: 40px auto;
     padding: 0 20px;
 }
@@ -121,34 +120,102 @@ body {
 /* Robot Recommendation Top Card */
 .robot-recommendation-card {
     background: white;
-    border-radius: var(--radius-md);
     display: flex;
-    gap: 32px;
+    gap: 0;
     padding: 32px;
-    margin-bottom: 48px;
-    border: 1px solid var(--border-color);
+    margin: 40px auto 48px;
+    justify-content: center;
+    max-width: 900px;
 }
 
 .robot-image-section {
-    flex: 0 0 40%;
+    flex: 0 0 50%;
+    max-width: 480px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .robot-image-section img {
-    width: 100%;
+    width: auto;
+    max-width: 100%;
+    height: auto;
     border-radius: var(--radius-md);
 }
 
-/* Stats and Charts Split */
+/* Robot Content & Checklist Section */
+.robot-content-section {
+    flex: 0 0 auto;
+    max-width: 420px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 20px;
+}
+
+.robot-header-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.robot-title {
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--text-main);
+    margin: 0;
+    line-height: 1.2;
+}
+
+.robot-subtitle {
+    font-size: 16px;
+    color: var(--text-muted);
+    margin: 0;
+    font-weight: 400;
+}
+
+.robot-features-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.check-icon-wrapper {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 12px;
+    color: var(--text-main);
+    font-size: 15px;
+    font-weight: 500;
+    min-height: 30px;
+}
+
+.check-icon-wrapper svg {
+    flex-shrink: 0;
+}
+
+.robot-action-wrapper {
+    margin-top: 8px;
+}
+
+.robot-action-wrapper .btn-verder {
+    padding: 14px 36px;
+    font-size: 15px;
+}
+
+/* Stats and Charts Grid Split */
 .stats-chart-split {
     display: flex;
-    gap: 24px;
+    gap: 20px;
 }
 
 .vertical-stat-stack {
-    flex: 0 0 220px;
+    flex: 0 0 220px; /* Expanded layout width */
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 16px; /* Uniform card spacing */
 }
 
 .chart-container {
@@ -156,14 +223,20 @@ body {
     background: white;
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
-    padding: 24px;
+    padding: 20px;
+    max-height: 200px;
 }
 
+/* Stat Cards Typographic Layout */
 .stat-card {
     background: white;
     padding: 20px;
     border-radius: var(--radius-md);
     border: 1px solid var(--border-color);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
 .stat-card-blue {
@@ -172,12 +245,46 @@ body {
     border: none;
 }
 
+.stat-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin: 0;
+    text-transform: none;
+}
+
+.stat-card-blue .stat-label {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.stat-value {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text-main);
+    margin: 4px 0;
+    line-height: 1.2;
+}
+
+.stat-card-blue .stat-value {
+    color: #ffffff;
+}
+
+.stat-sub {
+    font-size: 12px;
+    color: var(--text-light);
+    margin: 0;
+}
+
+.stat-card-blue .stat-sub {
+    color: rgba(255, 255, 255, 0.75);
+}
+
+/* Bottom Structure & Controls */
 .bottom-wrapper {
     display: flex;
     width: 100%;
     gap: 30px;
 }
-
 
 .slider-custom {
     -webkit-appearance: none;
@@ -201,35 +308,91 @@ body {
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
 }
 
-.comparison-table-wrapper {
-    width: 100%;
-
-}
-
 .sliders-container {
     min-width: 200px;
 }
 
+
+/* --- Comparison Table Styling --- */
+.comparison-table-wrapper {
+    margin-top: 40px;
+    width: 100%;
+}
+
+.comparison-table-wrapper .stat-card {
+    padding: 0 !important;
+    overflow: hidden;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    background: #ffffff;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+}
+
+/* Header Banner style mimicking card elements */
+.comparison-table-wrapper .table-header-banner {
+    background: var(--primary-blue);
+    color: white;
+    padding: 16px 24px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+}
+
+.comparison-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+    background: #ffffff;
+}
+
 .comparison-table th {
+    background: var(--bg-light);
+    color: var(--text-main);
+    font-weight: 600;
+    padding: 14px 24px;
     text-align: left;
-    padding: 12px 16px;
-    color: #6b7280;
-    font-weight: 500;
-    border-bottom: 1px solid #f3f4f6;
+    border-bottom: 2px solid var(--border-color);
 }
 
 .comparison-table td {
-    padding: 16px;
-    border-bottom: 1px solid #f3f4f6;
+    padding: 16px 24px;
+    color: var(--text-main);
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.2s ease;
 }
 
-check-icon-wrapper{
-    min-height: 30px;
-    display: flex;
-  justify-content: center;
-  align-items: center;
+/* Row stripping for clear comparison view */
+.comparison-table tbody tr:nth-child(even) {
+    background-color: #fdfdfd;
 }
 
+/* Hover accent to guide reading paths across columns */
+.comparison-table tbody tr:hover {
+    background-color: var(--bg-light);
+}
+
+/* Highlight the final summary or total row */
+.comparison-table tr.active-row {
+    background-color: #f0fdf4 !important; /* Soft green success tint */
+}
+
+.comparison-table tr.active-row td {
+    border-top: 1px solid #bbf7d0;
+    border-bottom: none;
+    padding-top: 18px;
+    padding-bottom: 18px;
+}
+
+.comparison-table tr.active-row td:first-child {
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+/* Align numeric data or highlighted variables nicely */
+.comparison-table td:nth-child(2),
+.comparison-table td:nth-child(3) {
+    font-weight: 500;
+}
 /* --- 4. Shared UI Elements --- */
 .label-text {
     color: var(--text-muted);
@@ -264,11 +427,39 @@ check-icon-wrapper{
     background: var(--primary-hover);
 }
 
+.form-step {
+    display: none;
+}
 
+.form-step.active {
+    display: block;
+}
 
-/* Responsive */
+.step-indicator {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-bottom: 18px;
+}
+
+.button-disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Forced Layout Chart Container Overrides */
+#barChartsContainer:not(.hidden) {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: flex-start;
+}
+
+.sub-chart {
+    flex: 1 1 200px;
+}
+
+/* --- 5. Responsive Media Queries --- */
 @media (max-width: 1024px) {
-
     .layout-grid-wrapper,
     .stats-chart-split,
     .robot-recommendation-card {

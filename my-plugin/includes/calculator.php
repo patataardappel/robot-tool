@@ -2,7 +2,8 @@
 /**
  * Simple calculation/display helper for the plugin.
  */
-function my_plugin_calculate_display( $meters, $minutes, $floor_type = '', $weekly_hours = 0, $hourly_wage = 0, $robot_price_month = 0, $robot_name = '' ) {
+function my_plugin_calculate_display( $meters, $minutes, $floor_type = '', $weekly_hours = 0, $hourly_wage = 0, $employees = 1, $robot_price_month = 0, $robot_name = '', $robot_workload_share = 50 ) {
+    $employees = max( 1, intval( $employees ) );
     $options = get_option( 'my_plugin_options', array() );
     if ( ! is_array( $options ) || empty( $options ) ) {
         $options = array(
@@ -20,7 +21,7 @@ function my_plugin_calculate_display( $meters, $minutes, $floor_type = '', $week
     $floor_multiplier = 1.0;
     switch ( $floor_type ) {
         case 'tapijt': case 'carpet': $floor_multiplier = 1.2; break;
-        case 'tile': $floor_multiplier = 1.1; break;
+        case 'tile': $floor_multiplier = 1.0; break;
         default: $floor_multiplier = 1.0; break;
     }
 
@@ -36,9 +37,24 @@ function my_plugin_calculate_display( $meters, $minutes, $floor_type = '', $week
         }
     }
 
-    $weekly_cost = floatval( $weekly_hours ) * floatval( $hourly_wage );
-    $annual_cost = $weekly_cost * 52;
-    $ratio = 0.5;
+    // --- IMPROVED REALISTIC MATHEMATICAL LOGIC ---
+    // 1. Baseline Cost: Treat weekly hours as TOTAL collective team man-hours to prevent cost multiplication errors
+    $total_manual_hours_yearly = floatval( $weekly_hours ) * 52;
+    $annual_cost = $total_manual_hours_yearly * floatval( $hourly_wage );
+
+    // 2. Dynamic Replacement Ratio:
+    // The user-controlled slider determines the exact percentage of duties the robot takes over.
+    $robot_workload_share_pct = floatval( $robot_workload_share ) / 100;
+    $automatable_hours_yearly = $total_manual_hours_yearly * $robot_workload_share_pct;
+
+    // 3. Human Intervention Overhead:
+    // Staff takes ~15 minutes (0.25 hours) per day to service/clean/refill the robot
+    $days_operated_per_year = 312; // Assuming 6 days a week
+    $human_maintenance_overhead_hours = 0.25 * $days_operated_per_year;
+
+    // Net hours saved by deploying the robot
+    $net_hours_saved_yearly = max( 0, $automatable_hours_yearly - $human_maintenance_overhead_hours );
+    $manual_labor_savings = $net_hours_saved_yearly * floatval( $hourly_wage );
 
     if ( $selected_item ) {
         $robot_price_month = floatval( $selected_item['price_month'] ?? $robot_price_month );
@@ -46,10 +62,11 @@ function my_plugin_calculate_display( $meters, $minutes, $floor_type = '', $week
     }
 
     $robot_annual_cost = floatval( $robot_price_month ) * 12;
-    $manual_annual_cost_after = $annual_cost * ( 1 - $ratio );
-    $total_cost_with_robot = $robot_annual_cost + $manual_annual_cost_after;
+    
+    // New total cost = Robot subscription + Remaining manual tasks (toilets, dusting, servicing robot)
+    $total_cost_with_robot = $robot_annual_cost + ( $annual_cost - $manual_labor_savings );
     $annual_savings = $annual_cost - $total_cost_with_robot;
-    $payback_months = $annual_savings > 0 ? (($robot_price_month * 12) / $annual_savings) * 12 : 0;
+    $payback_months = $annual_savings > 0 ? ( $robot_annual_cost / $annual_savings ) * 12 : 0;
 
     // Comparison metrics for chart
     $availability_robot = 24;
@@ -62,67 +79,52 @@ function my_plugin_calculate_display( $meters, $minutes, $floor_type = '', $week
     ob_start();
     ?>
 
-
 <div class="dashboard-container">
 
-
     <div class="robot-recommendation-card">
-        <!-- Left Side: Visual -->
-
         <div class="robot-image-section">
             <div class="robot-container">
-                <!-- Dynamic image based on robot, fallback to placeholder -->
                 <img src="<?php echo esc_url( $selected_item['image'] ?? 'https://placehold.co/400x400/e2e8f0/64748b?text=' . urlencode($robot_name) ); ?>"
                     alt="<?php echo esc_attr($robot_name); ?> Robot"
                     onerror="this.onerror=null; this.src='https://placehold.co/400x400/e2e8f0/64748b?text=Robot';">
             </div>
         </div>
 
-        <!-- Right Side: Content -->
         <div class="robot-content-section">
-            <div>
+            <div class="robot-header-group">
                 <h1 class="robot-title">De <?php echo esc_html($robot_name); ?></h1>
                 <p class="robot-subtitle">Is de juiste robot voor u</p>
             </div>
 
-            <!-- Features List -->
-
+            <div class="robot-features-list">
                 <div class="check-icon-wrapper">
-                    <svg width="30" height="30" viewBox="0 0 64 64" fill="#43a047" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                            d="M32,2C15.431,2,2,15.432,2,32c0,16.568,13.432,30,30,30c16.568,0,30-13.432,30-30C62,15.432,48.568,2,32,2z M25.025,50l-0.02-0.02L24.988,50L11,35.6l7.029-7.164l6.977,7.184l21-21.619L53,21.199L25.025,50z" />
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
                     </svg>
                     <span>Geschikt voor uw vloer</span>
                 </div>
 
-
                 <div class="check-icon-wrapper">
-                    <svg width="30" height="30" viewBox="0 0 64 64" fill="#43a047" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                            d="M32,2C15.431,2,2,15.432,2,32c0,16.568,13.432,30,30,30c16.568,0,30-13.432,30-30C62,15.432,48.568,2,32,2z M25.025,50l-0.02-0.02L24.988,50L11,35.6l7.029-7.164l6.977,7.184l21-21.619L53,21.199L25.025,50z" />
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
                     </svg>
                     <span><?php echo esc_html($selected_item['cleaning_functions'] ?? 'Vegen'); ?></span>
                 </div>
 
-
                 <div class="check-icon-wrapper">
-                    <svg width="30" height="30" viewBox="0 0 64 64" fill="#43a047" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                            d="M32,2C15.431,2,2,15.432,2,32c0,16.568,13.432,30,30,30c16.568,0,30-13.432,30-30C62,15.432,48.568,2,32,2z M25.025,50l-0.02-0.02L24.988,50L11,35.6l7.029-7.164l6.977,7.184l21-21.619L53,21.199L25.025,50z" />
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
                     </svg>
                     <span><?php echo esc_html($selected_item['meters'] ?? 1000); ?> m² per uur</span>
                 </div>
+            </div>
 
-
-
-            <!-- Button -->
-            <div>
+            <div class="robot-action-wrapper">
                 <button class="btn-verder btn-active">
                     Offerte aanvragen
                 </button>
             </div>
         </div>
-
     </div>
 
     <div class="layout-grid-wrapper">
@@ -140,38 +142,42 @@ function my_plugin_calculate_display( $meters, $minutes, $floor_type = '', $week
                 <div class="control-group">
                     <label class="label-text">Andere robot vergelijken</label>
                     <div class="select-wrapper">
-                        <select class="custom-input">
-                            <option><?php echo esc_html($robot_name); ?></option>
+                        <select id="compareRobotSelect" class="custom-input" name="compare_robot"
+                            onchange="handleRobotSelection(this)">
+                            <?php foreach ( $options as $option ) : ?>
+                            <option value="<?php echo esc_attr( $option['name'] ?? '' ); ?>"
+                                <?php selected( $option['name'] ?? '', $robot_name ); ?>>
+                                <?php echo esc_html( $option['name'] ?? 'Onbekende robot' ); ?>
+                            </option>
+                            <?php endforeach; ?>
                         </select>
                     </div>
                 </div>
-
-
             </div>
         </aside>
 
         <main class="results-column">
-            <h2 class="results-title">De <?php echo esc_html($robot_name); ?></h2>
+            <h2 id="robotTitle" class="results-title">De <?php echo esc_html($robot_name); ?></h2>
 
             <div class="stats-chart-split">
-
                 <div class="vertical-stat-stack">
                     <div class="stat-card stat-card-blue">
-                        <p>Totale kosten besparing</p>
-                        <h2 class="text-xl font-bold">€<?php echo number_format($annual_savings, 0, ',', '.'); ?></h2>
-                        <p class="text-xs opacity-75">Per jaar</p>
+                        <p class="stat-label">Totale kosten besparing</p>
+                        <h2 id="annualSavingsValue" class="stat-value">
+                            €<?php echo number_format($annual_savings, 0, ',', '.'); ?></h2>
+                        <p class="stat-sub">Per jaar</p>
                     </div>
                     <div class="stat-card">
-                        <p class="text-sm text-gray-500">kosten robot</p>
-                        <h2 class="text-xl font-bold text-gray-800">
+                        <p class="stat-label">Kosten incl. robot</p>
+                        <h2 id="robotCostValue" class="stat-value">
                             €<?php echo number_format($total_cost_with_robot, 0, ',', '.'); ?></h2>
-                        <p class="text-xs text-gray-400">Per jaar</p>
+                        <p class="stat-sub">Per jaar</p>
                     </div>
                     <div class="stat-card">
-                        <p class="text-sm text-gray-500">Kosten handmatig</p>
-                        <h2 class="text-xl font-bold text-gray-800">
+                        <p class="stat-label">Kosten handmatig</p>
+                        <h2 id="manualCostValue" class="stat-value">
                             €<?php echo number_format($annual_cost, 0, ',', '.'); ?></h2>
-                        <p class="text-xs text-gray-400">Per jaar</p>
+                        <p class="stat-sub">Per jaar</p>
                     </div>
                 </div>
 
@@ -180,7 +186,7 @@ function my_plugin_calculate_display( $meters, $minutes, $floor_type = '', $week
                         <div class="flex gap-4">
                             <div class="flex items-center gap-2">
                                 <div class="w-3 h-3 rounded-full bg-red-400"></div>
-                                <span class="text-xs text-gray-500">Robot</span>
+                                <span class="text-xs text-gray-500">Robot situatie</span>
                             </div>
                             <div class="flex items-center gap-2">
                                 <div class="w-3 h-3 rounded-full bg-indigo-600"></div>
@@ -207,32 +213,50 @@ function my_plugin_calculate_display( $meters, $minutes, $floor_type = '', $week
                     </div>
                 </div>
             </div>
+
             <div class="bottom-wrapper">
                 <div class="sliders-container">
                     <div class="slider-group">
                         <div class="slider-label-row">
                             <label class="label-text">Medewerkers</label>
-                            <span class="slider-val-display">4</span>
+                            <span class="slider-val-display"
+                                id="sliderEmployeesValue"><?php echo intval( $employees ); ?></span>
                         </div>
-                        <input type="range" class="slider-custom" min="1" max="10" value="4">
+                        <input id="sliderEmployees" type="range" class="slider-custom" min="1" max="10"
+                            value="<?php echo intval( $employees ); ?>" oninput="updateSliderValue(this)">
                     </div>
 
                     <div class="slider-group">
                         <div class="slider-label-row">
                             <label class="label-text">Uurloon medewerker</label>
-                            <span class="slider-val-display">€15</span>
+                            <span class="slider-val-display"
+                                id="sliderHourlyWageValue">€<?php echo number_format( $hourly_wage, 0, ',', '.' ); ?></span>
                         </div>
-                        <input type="range" class="slider-custom" min="10" max="50" value="15">
+                        <input id="sliderHourlyWage" type="range" class="slider-custom" min="0" max="50"
+                            value="<?php echo esc_attr( $hourly_wage ); ?>" oninput="updateSliderValue(this)">
                     </div>
 
                     <div class="slider-group">
                         <div class="slider-label-row">
                             <label class="label-text">Schoonmaak per week (uren)</label>
-                            <span class="slider-val-display">20</span>
+                            <span class="slider-val-display"
+                                id="sliderWeeklyHoursValue"><?php echo intval( $weekly_hours ); ?></span>
                         </div>
-                        <input type="range" class="slider-custom" min="1" max="60" value="20">
+                        <input id="sliderWeeklyHours" type="range" class="slider-custom" min="1" max="60"
+                            value="<?php echo esc_attr( $weekly_hours ); ?>" oninput="updateSliderValue(this)">
+                    </div>
+
+                    <div class="slider-group">
+                        <div class="slider-label-row">
+                            <label class="label-text">Taken overgenomen door robot (%)</label>
+                            <span class="slider-val-display"
+                                id="sliderRobotWorkloadValue"><?php echo intval( $robot_workload_share ); ?>%</span>
+                        </div>
+                        <input id="sliderRobotWorkload" type="range" class="slider-custom" min="0" max="100"
+                            value="<?php echo intval( $robot_workload_share ); ?>" oninput="updateSliderValue(this)">
                     </div>
                 </div>
+
                 <div class="comparison-table-wrapper" style="margin-top: 30px;">
                     <div class="stat-card" style="padding: 0; overflow: hidden;">
                         <div style="background: #007bb6; color: white; padding: 15px 20px; font-weight: bold;">
@@ -242,7 +266,7 @@ function my_plugin_calculate_display( $meters, $minutes, $floor_type = '', $week
                             <thead>
                                 <tr>
                                     <th style="text-align: left; padding: 12px 20px;">Parameter</th>
-                                    <th style="text-align: left; padding: 12px 20px;">Keenon C40</th>
+                                    <th style="text-align: left; padding: 12px 20px;">Robot Situatie</th>
                                     <th style="text-align: left; padding: 12px 20px;">Handmatig</th>
                                 </tr>
                             </thead>
@@ -253,8 +277,8 @@ function my_plugin_calculate_display( $meters, $minutes, $floor_type = '', $week
                                     <td>700 (m²/hour)</td>
                                 </tr>
                                 <tr>
-                                    <td>Initiele kost</td>
-                                    <td>€40.000</td>
+                                    <td>Totale kosten robot</td>
+                                    <td><?php echo esc_html($selected_item['price']); ?></td>
                                     <td>€0</td>
                                 </tr>
                                 <tr>
@@ -279,8 +303,10 @@ function my_plugin_calculate_display( $meters, $minutes, $floor_type = '', $week
                                 </tr>
                                 <tr class="active-row">
                                     <td style="font-weight: bold;">Kosten per jaar</td>
-                                    <td style="color: #10b981; font-weight: bold;">€1.100</td>
-                                    <td style="font-weight: bold;">€6.200</td>
+                                    <td style="color: #10b981; font-weight: bold;" id="comparisonRobotYearCost">
+                                        €<?php echo number_format($total_cost_with_robot, 0, ',', '.'); ?></td>
+                                    <td style="font-weight: bold;" id="comparisonManualYearCost">
+                                        €<?php echo number_format($annual_cost, 0, ',', '.'); ?></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -299,18 +325,180 @@ function my_plugin_calculate_display( $meters, $minutes, $floor_type = '', $week
     flex-wrap: nowrap !important;
     align-items: flex-start;
 }
-
 .sub-chart {
     flex: 1 1 200px;
-    /* Grow, Shrink, Basis */
 }
 </style>
 
 <script>
 let myChart;
 let chartAvail, chartCosts, chartCleaning, chartAbsence;
+let currentChartType = 'line';
+
+const robotOptions = <?php echo wp_json_encode( array_values( array_filter( array_map( function( $option ) {
+        return array(
+            'name' => $option['name'] ?? '',
+            'price_month' => floatval( $option['price_month'] ?? 0 ),
+            'meters' => floatval( $option['meters'] ?? 0 ),
+            'cleaning_functions' => $option['cleaning_functions'] ?? '',
+        );
+    }, $options ) ) ) ); ?>;
+
+const robotsByName = Object.fromEntries(robotOptions.map(robot => [robot.name, robot]));
+
+const liveResultData = {
+    robotAnnualCost: <?php echo floatval( $robot_annual_cost ); ?>,
+    robotName: '<?php echo esc_js( $robot_name ); ?>',
+    robotCostFormatted: '<?php echo number_format( $robot_annual_cost, 0, ',', '.' ); ?>',
+    availabilityRobot: <?php echo floatval( $availability_robot ); ?>,
+    robotAbsence: <?php echo floatval( $robot_absence ); ?>,
+    robotCleaningRate: <?php echo floatval( $cleaning_per_hour_robot ); ?>,
+    manualCleaningRate: <?php echo floatval( $cleaning_per_hour_manual ); ?>
+};
+
+function getSelectedRobotData() {
+    const select = document.getElementById('compareRobotSelect');
+    if (!select) {
+        return null;
+    }
+    return robotsByName[select.value] || robotOptions[0] || null;
+}
+
+function handleRobotSelection(select) {
+    const robot = getSelectedRobotData();
+    if (!robot) {
+        return;
+    }
+
+    liveResultData.robotAnnualCost = parseFloat(robot.price_month) * 12;
+    liveResultData.robotCleaningRate = parseFloat(robot.meters) || liveResultData.robotCleaningRate;
+    liveResultData.robotName = robot.name;
+
+    const robotTitle = document.getElementById('robotTitle');
+    if (robotTitle) {
+        robotTitle.textContent = 'De ' + robot.name;
+    }
+
+    refreshResults();
+}
+
+function formatEuro(value) {
+    return new Intl.NumberFormat('nl-NL', {
+        style: 'currency',
+        currency: 'EUR',
+        maximumFractionDigits: 0
+    }).format(value);
+}
+
+function roundTo(value, digits) {
+    const factor = Math.pow(10, digits);
+    return Math.round(value * factor) / factor;
+}
+
+function getSliderValues() {
+    return {
+        employees: parseFloat(document.getElementById('sliderEmployees').value),
+        hourlyWage: parseFloat(document.getElementById('sliderHourlyWage').value),
+        weeklyHours: parseFloat(document.getElementById('sliderWeeklyHours').value),
+        robotWorkload: parseFloat(document.getElementById('sliderRobotWorkload').value)
+    };
+}
+
+function computeLiveMetrics(values) {
+    // Treat values.weeklyHours as total combined team hours per week
+    const totalManualHoursYearly = values.weeklyHours * 52;
+    const manualAnnualCost = totalManualHoursYearly * values.hourlyWage;
+
+    // Match backend dynamic adjustment rules based on user slider input
+    const robotWorkloadPct = values.robotWorkload / 100;
+    const automatableHoursYearly = totalManualHoursYearly * robotWorkloadPct;
+
+    // Daily maintenance overhead (15 mins/day across roughly 312 operating days a year)
+    const humanMaintenanceOverheadHours = 0.25 * 312;
+    const netHoursSavedYearly = Math.max(0, automatableHoursYearly - humanMaintenanceOverheadHours);
+    const manualLaborSavings = netHoursSavedYearly * values.hourlyWage;
+
+    const totalCostWithRobot = liveResultData.robotAnnualCost + (manualAnnualCost - manualLaborSavings);
+    const annualSavings = manualAnnualCost - totalCostWithRobot;
+    const availabilityManual = Math.min(24, roundTo(values.weeklyHours / 7, 1));
+    const manualAbsence = Math.max(5, Math.round(values.weeklyHours / 10));
+
+    return {
+        manualAnnualCost,
+        totalCostWithRobot,
+        annualSavings,
+        availabilityManual,
+        manualAbsence
+    };
+}
+
+function updateSliderValue(slider) {
+    let label = slider.value;
+    if (slider.id === 'sliderHourlyWage') {
+        label = '€' + slider.value;
+    } else if (slider.id === 'sliderRobotWorkload') {
+        label = slider.value + '%';
+    }
+    const display = document.getElementById(slider.id + 'Value');
+    if (display) {
+        display.textContent = label;
+    }
+    refreshResults();
+}
+
+function refreshResults() {
+    const values = getSliderValues();
+    const metrics = computeLiveMetrics(values);
+
+    const annualSavingsElement = document.getElementById('annualSavingsValue');
+    const robotCostElement = document.getElementById('robotCostValue');
+    const manualCostElement = document.getElementById('manualCostValue');
+    const comparisonManualCost = document.getElementById('comparisonManualYearCost');
+    const comparisonRobotCost = document.getElementById('comparisonRobotYearCost');
+
+    if (annualSavingsElement) {
+        annualSavingsElement.textContent = formatEuro(metrics.annualSavings);
+    }
+    if (robotCostElement) {
+        robotCostElement.textContent = formatEuro(metrics.totalCostWithRobot);
+    }
+    if (manualCostElement) {
+        manualCostElement.textContent = formatEuro(metrics.manualAnnualCost);
+    }
+    if (comparisonManualCost) {
+        comparisonManualCost.textContent = formatEuro(metrics.manualAnnualCost);
+    }
+    if (comparisonRobotCost) {
+        comparisonRobotCost.textContent = formatEuro(metrics.totalCostWithRobot);
+    }
+
+    if (currentChartType === 'line' && myChart) {
+        const annualManual = metrics.manualAnnualCost;
+        const totalWithRobot = metrics.totalCostWithRobot;
+        const months = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24];
+        myChart.data.datasets[0].data = months.map(m => (totalWithRobot / 12) * m);
+        myChart.data.datasets[1].data = months.map(m => (annualManual / 12) * m);
+        myChart.update();
+    }
+
+    if (currentChartType === 'bar') {
+        if (chartCosts) {
+            chartCosts.data.datasets[0].data = [metrics.totalCostWithRobot, metrics.manualAnnualCost];
+            chartCosts.update();
+        }
+        if (chartAvail) {
+            chartAvail.data.datasets[0].data = [liveResultData.availabilityRobot, metrics.availabilityManual];
+            chartAvail.update();
+        }
+        if (chartAbsence) {
+            chartAbsence.data.datasets[0].data = [liveResultData.robotAbsence, metrics.manualAbsence];
+            chartAbsence.update();
+        }
+    }
+}
 
 function initChart(type = 'line') {
+    currentChartType = type;
     if (myChart) myChart.destroy();
     if (chartAvail) chartAvail.destroy();
     if (chartCosts) chartCosts.destroy();
@@ -319,14 +507,16 @@ function initChart(type = 'line') {
 
     const lineContainer = document.getElementById('lineChartContainer');
     const barContainer = document.getElementById('barChartsContainer');
+    const values = getSliderValues();
+    const metrics = computeLiveMetrics(values);
 
     if (type === 'line') {
         lineContainer.classList.remove('hidden');
         barContainer.classList.add('hidden');
 
         const ctx = document.getElementById('roiChart').getContext('2d');
-        const annualManual = <?php echo $annual_cost; ?>;
-        const annualRobot = <?php echo $total_cost_with_robot; ?>;
+        const annualManual = metrics.manualAnnualCost;
+        const totalWithRobot = metrics.totalCostWithRobot;
         const labels = ['M0', 'M2', 'M4', 'M6', 'M8', 'M10', 'M12', 'M14', 'M16', 'M18', 'M20', 'M22', 'M24'];
         const months = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24];
 
@@ -335,8 +525,8 @@ function initChart(type = 'line') {
             data: {
                 labels: labels,
                 datasets: [{
-                        label: 'Robot',
-                        data: months.map(m => (annualRobot / 12) * m),
+                        label: 'Robot situatie',
+                        data: months.map(m => (totalWithRobot / 12) * m),
                         borderColor: '#f87171',
                         backgroundColor: '#f8717122',
                         borderWidth: 3,
@@ -366,7 +556,6 @@ function initChart(type = 'line') {
         lineContainer.classList.add('hidden');
         barContainer.classList.remove('hidden');
 
-        // Standard Chart.js bar config
         const barOptions = {
             responsive: true,
             maintainAspectRatio: false,
@@ -383,13 +572,12 @@ function initChart(type = 'line') {
             barPercentage: 0.4
         };
 
-        // Init all 4 bar charts
         chartAvail = new Chart(document.getElementById('chartAvail'), {
             type: 'bar',
             data: {
                 labels: ['Robot', 'Handm.'],
                 datasets: [{
-                    data: [<?php echo $availability_robot; ?>, <?php echo $availability_manual; ?>],
+                    data: [liveResultData.availabilityRobot, metrics.availabilityManual],
                     backgroundColor: ['#f87171', '#4f46e5']
                 }]
             },
@@ -401,7 +589,7 @@ function initChart(type = 'line') {
             data: {
                 labels: ['Robot', 'Handm.'],
                 datasets: [{
-                    data: [<?php echo $total_cost_with_robot; ?>, <?php echo $annual_cost; ?>],
+                    data: [metrics.totalCostWithRobot, metrics.manualAnnualCost],
                     backgroundColor: ['#f87171', '#4f46e5']
                 }]
             },
@@ -413,9 +601,7 @@ function initChart(type = 'line') {
             data: {
                 labels: ['Robot', 'Handm.'],
                 datasets: [{
-                    data: [<?php echo $cleaning_per_hour_robot; ?>,
-                        <?php echo $cleaning_per_hour_manual; ?>
-                    ],
+                    data: [liveResultData.robotCleaningRate, liveResultData.manualCleaningRate],
                     backgroundColor: ['#f87171', '#4f46e5']
                 }]
             },
@@ -427,19 +613,25 @@ function initChart(type = 'line') {
             data: {
                 labels: ['Robot', 'Handm.'],
                 datasets: [{
-                    data: [<?php echo $robot_absence; ?>, <?php echo $manual_absence; ?>],
+                    data: [liveResultData.robotAbsence, metrics.manualAbsence],
                     backgroundColor: ['#f87171', '#4f46e5']
                 }]
             },
             options: barOptions
         });
     }
+
+    refreshResults();
 }
 
 function updateChart(type) {
     initChart(type);
 }
-window.onload = () => initChart('line');
+
+window.addEventListener('load', function() {
+    refreshResults();
+    initChart('line');
+});
 </script>
 <?php
     return ob_get_clean();

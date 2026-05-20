@@ -24,8 +24,10 @@ function my_plugin_results_shortcode( $atts ) {
         $floor_type = sanitize_text_field( $_POST['floor_type'] );
         $weekly_hours = floatval( $_POST['cleaning_hours_per_week'] );
         $hourly_wage = floatval( $_POST['hourly_wage'] );
+        $employees = intval( $_POST['employees'] ?? 1 );
+        $robot_workload_share = isset( $_POST['robot_workload_share'] ) ? floatval( $_POST['robot_workload_share'] ) : 50;
 
-        $result_html = my_plugin_calculate_display( $meters, $minutes, $floor_type, $weekly_hours, $hourly_wage );
+        $result_html = my_plugin_calculate_display( $meters, $minutes, $floor_type, $weekly_hours, $hourly_wage, $employees, 0, '', $robot_workload_share );
 
         // Store in transient for 1 hour
         $key = wp_generate_password( 12, false );
