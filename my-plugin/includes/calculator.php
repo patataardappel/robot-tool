@@ -64,7 +64,7 @@ function my_plugin_calculate_display( $meters, $minutes, $floor_type = '', $week
 
 
 <div class="dashboard-container">
-    
+
 
     <div class="robot-recommendation-card">
         <!-- Left Side: Visual -->
@@ -86,38 +86,34 @@ function my_plugin_calculate_display( $meters, $minutes, $floor_type = '', $week
             </div>
 
             <!-- Features List -->
-            <ul class="robot-features">
-                <li>
-                    <div class="check-icon-wrapper">
-                        <svg class="check-icon" width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                clip-rule="evenodd"></path>
-                        </svg>
-                    </div>
+
+                <div class="check-icon-wrapper">
+                    <svg width="30" height="30" viewBox="0 0 64 64" fill="#43a047" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M32,2C15.431,2,2,15.432,2,32c0,16.568,13.432,30,30,30c16.568,0,30-13.432,30-30C62,15.432,48.568,2,32,2z M25.025,50l-0.02-0.02L24.988,50L11,35.6l7.029-7.164l6.977,7.184l21-21.619L53,21.199L25.025,50z" />
+                    </svg>
                     <span>Geschikt voor uw vloer</span>
-                </li>
-                <li>
-                    <div class="check-icon-wrapper">
-                        <svg class="check-icon" width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                clip-rule="evenodd"></path>
-                        </svg>
-                    </div>
+                </div>
+
+
+                <div class="check-icon-wrapper">
+                    <svg width="30" height="30" viewBox="0 0 64 64" fill="#43a047" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M32,2C15.431,2,2,15.432,2,32c0,16.568,13.432,30,30,30c16.568,0,30-13.432,30-30C62,15.432,48.568,2,32,2z M25.025,50l-0.02-0.02L24.988,50L11,35.6l7.029-7.164l6.977,7.184l21-21.619L53,21.199L25.025,50z" />
+                    </svg>
                     <span><?php echo esc_html($selected_item['cleaning_functions'] ?? 'Vegen'); ?></span>
-                </li>
-                <li>
-                    <div class="check-icon-wrapper">
-                        <svg class="check-icon" width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                clip-rule="evenodd"></path>
-                        </svg>
-                    </div>
+                </div>
+
+
+                <div class="check-icon-wrapper">
+                    <svg width="30" height="30" viewBox="0 0 64 64" fill="#43a047" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M32,2C15.431,2,2,15.432,2,32c0,16.568,13.432,30,30,30c16.568,0,30-13.432,30-30C62,15.432,48.568,2,32,2z M25.025,50l-0.02-0.02L24.988,50L11,35.6l7.029-7.164l6.977,7.184l21-21.619L53,21.199L25.025,50z" />
+                    </svg>
                     <span><?php echo esc_html($selected_item['meters'] ?? 1000); ?> m² per uur</span>
-                </li>
-            </ul>
+                </div>
+
+
 
             <!-- Button -->
             <div>
@@ -213,29 +209,29 @@ function my_plugin_calculate_display( $meters, $minutes, $floor_type = '', $week
             </div>
             <div class="bottom-wrapper">
                 <div class="sliders-container">
-                <div class="slider-group">
-                    <div class="slider-label-row">
-                        <label class="label-text">Medewerkers</label>
-                        <span class="slider-val-display">4</span>
+                    <div class="slider-group">
+                        <div class="slider-label-row">
+                            <label class="label-text">Medewerkers</label>
+                            <span class="slider-val-display">4</span>
+                        </div>
+                        <input type="range" class="slider-custom" min="1" max="10" value="4">
                     </div>
-                    <input type="range" class="slider-custom" min="1" max="10" value="4">
-                </div>
 
-                <div class="slider-group">
-                    <div class="slider-label-row">
-                        <label class="label-text">Uurloon medewerker</label>
-                        <span class="slider-val-display">€15</span>
+                    <div class="slider-group">
+                        <div class="slider-label-row">
+                            <label class="label-text">Uurloon medewerker</label>
+                            <span class="slider-val-display">€15</span>
+                        </div>
+                        <input type="range" class="slider-custom" min="10" max="50" value="15">
                     </div>
-                    <input type="range" class="slider-custom" min="10" max="50" value="15">
-                </div>
 
-                <div class="slider-group">
-                    <div class="slider-label-row">
-                        <label class="label-text">Schoonmaak per week (uren)</label>
-                        <span class="slider-val-display">20</span>
+                    <div class="slider-group">
+                        <div class="slider-label-row">
+                            <label class="label-text">Schoonmaak per week (uren)</label>
+                            <span class="slider-val-display">20</span>
+                        </div>
+                        <input type="range" class="slider-custom" min="1" max="60" value="20">
                     </div>
-                    <input type="range" class="slider-custom" min="1" max="60" value="20">
-                </div>
                 </div>
                 <div class="comparison-table-wrapper" style="margin-top: 30px;">
                     <div class="stat-card" style="padding: 0; overflow: hidden;">

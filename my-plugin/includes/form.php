@@ -23,13 +23,14 @@ function my_plugin_form_shortcode( $atts ) {
 <div class="container-box">
     <div class="container-box">
         <h2 class="selection-title">Type soort ruimte</h2>
-
-        <div class="room-selection-grid">
+        
+   
+<div class="room-selection-grid">
             <label class="room-option">
                 <input type="radio" name="room_type" value="kantoor" class="room-radio" onchange="enableNextButton()">
                 <div class="room-card-content">
                     <div class="image-container">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Test.svg/960px-Test.svg.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=thumbnail"
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS2_RX-GRKs6NZn0J5uxHHliUmvc0WQdbz4yQ&s"
                             alt="Supermarkt">
                     </div>
                     <p class="room-label">Kantoor</p>
@@ -40,7 +41,7 @@ function my_plugin_form_shortcode( $atts ) {
                 <input type="radio" name="room_type" value="sportzaal" class="room-radio" onchange="enableNextButton()">
                 <div class="room-card-content">
                     <div class="image-container">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Test.svg/960px-Test.svg.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=thumbnail"
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS2_RX-GRKs6NZn0J5uxHHliUmvc0WQdbz4yQ&s"
                             alt="Sportzaal">
                     </div>
                     <p class="room-label">Sportzaal</p>
@@ -52,7 +53,7 @@ function my_plugin_form_shortcode( $atts ) {
                     onchange="enableNextButton()">
                 <div class="room-card-content">
                     <div class="image-container">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Test.svg/960px-Test.svg.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=thumbnail"
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS2_RX-GRKs6NZn0J5uxHHliUmvc0WQdbz4yQ&s"
                             alt="Supermarkt">
                     </div>
                     <p class="room-label">Supermarkt</p>
@@ -63,7 +64,7 @@ function my_plugin_form_shortcode( $atts ) {
                 <input type="radio" name="room_type" value="hotel" class="room-radio" onchange="enableNextButton()">
                 <div class="room-card-content">
                     <div class="image-container">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Test.svg/960px-Test.svg.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=thumbnail"
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS2_RX-GRKs6NZn0J5uxHHliUmvc0WQdbz4yQ&s"
                             alt="Supermarkt">
                     </div>
                     <p class="room-label">Hotel</p>
@@ -74,7 +75,7 @@ function my_plugin_form_shortcode( $atts ) {
                 <input type="radio" name="room_type" value="gym" class="room-radio" onchange="enableNextButton()">
                 <div class="room-card-content">
                     <div class="image-container">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Test.svg/960px-Test.svg.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=thumbnail"
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS2_RX-GRKs6NZn0J5uxHHliUmvc0WQdbz4yQ&s"
                             alt="Supermarkt">
                     </div>
                     <p class="room-label">Gym</p>
