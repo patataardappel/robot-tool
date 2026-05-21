@@ -273,65 +273,65 @@ function my_plugin_options_page() {
                         </p>
                         <p>
                             <label>Cleaning functions:
-                                <input type="text" name="my_plugin_options[<?php echo $index; ?>][cleaning_functions]" value="<?php echo esc_attr( $item['cleaning_functions'] ?? '' ); ?>" placeholder="Vegen, Stofzuigen, Dweilen, Stofwissen" />
+                                <input type="text" name="my_plugin_options[<?php echo $index; ?>][cleaning_functions]" value="<?php echo esc_attr( $item['cleaning_functions'] ?? '' ); ?>" />
                             </label>
                         </p>
                         <p>
                             <label>Dimensions (Width x Depth x Height) in mm:
-                                <input type="number" step="any" min="0" name="my_plugin_options[<?php echo $index; ?>][dimensions_width]" value="<?php echo esc_attr( $item['dimensions_width'] ?? '' ); ?>" placeholder="616" /> x
-                                <input type="number" step="any" min="0" name="my_plugin_options[<?php echo $index; ?>][dimensions_depth]" value="<?php echo esc_attr( $item['dimensions_depth'] ?? '' ); ?>" placeholder="550" /> x
-                                <input type="number" step="any" min="0" name="my_plugin_options[<?php echo $index; ?>][dimensions_height]" value="<?php echo esc_attr( $item['dimensions_height'] ?? '' ); ?>" placeholder="690" /> mm
+                                <input type="number" step="any" min="0" name="my_plugin_options[<?php echo $index; ?>][dimensions_width]" value="<?php echo esc_attr( $item['dimensions_width'] ?? '' ); ?>" /> x
+                                <input type="number" step="any" min="0" name="my_plugin_options[<?php echo $index; ?>][dimensions_depth]" value="<?php echo esc_attr( $item['dimensions_depth'] ?? '' ); ?>" /> x
+                                <input type="number" step="any" min="0" name="my_plugin_options[<?php echo $index; ?>][dimensions_height]" value="<?php echo esc_attr( $item['dimensions_height'] ?? '' ); ?>" /> mm
                             </label>
                         </p>
                         <p>
                             <label>Weight (kg):
-                                <input type="number" step="any" min="0" name="my_plugin_options[<?php echo $index; ?>][weight]" value="<?php echo esc_attr( $item['weight'] ?? '' ); ?>" placeholder="70" />
+                                <input type="number" step="any" min="0" name="my_plugin_options[<?php echo $index; ?>][weight]" value="<?php echo esc_attr( $item['weight'] ?? '' ); ?>"/>
                             </label>
                         </p>
                         <p>
                             <label>Battery (Voltage V / Capacity Ah):
-                                <input type="number" step="any" min="0" name="my_plugin_options[<?php echo $index; ?>][battery_voltage]" value="<?php echo esc_attr( $item['battery_voltage'] ?? '' ); ?>" placeholder="25.6" /> V /
-                                <input type="number" step="any" min="0" name="my_plugin_options[<?php echo $index; ?>][battery_capacity]" value="<?php echo esc_attr( $item['battery_capacity'] ?? '' ); ?>" placeholder="50" /> Ah
+                                <input type="number" step="any" min="0" name="my_plugin_options[<?php echo $index; ?>][battery_voltage]" value="<?php echo esc_attr( $item['battery_voltage'] ?? '' ); ?>" /> V /
+                                <input type="number" step="any" min="0" name="my_plugin_options[<?php echo $index; ?>][battery_capacity]" value="<?php echo esc_attr( $item['battery_capacity'] ?? '' ); ?>" /> Ah
                             </label>
                         </p>
                         <p>
                             <label>Charge time (hours):
-                                <input type="number" step="any" min="0" name="my_plugin_options[<?php echo $index; ?>][charge_time]" value="<?php echo esc_attr( $item['charge_time'] ?? '' ); ?>" placeholder="2" />
+                                <input type="number" step="any" min="0" name="my_plugin_options[<?php echo $index; ?>][charge_time]" value="<?php echo esc_attr( $item['charge_time'] ?? '' ); ?>" />
                             </label>
                         </p>
                         <p>
                             <label>Maximum run time (hours):
-                                <input type="number" step="any" min="0" name="my_plugin_options[<?php echo $index; ?>][max_run_time]" value="<?php echo esc_attr( $item['max_run_time'] ?? '' ); ?>" placeholder="5" />
+                                <input type="number" step="any" min="0" name="my_plugin_options[<?php echo $index; ?>][max_run_time]" value="<?php echo esc_attr( $item['max_run_time'] ?? '' ); ?>" />
                             </label>
                         </p>
                         <p>
                             <label>Cleaning width (m²):
-                                <input type="number" step="any" min="0" name="my_plugin_options[<?php echo $index; ?>][cleaning_width]" value="<?php echo esc_attr( $item['cleaning_width'] ?? '' ); ?>" placeholder="560" />
+                                <input type="number" step="any" min="0" name="my_plugin_options[<?php echo $index; ?>][cleaning_width]" value="<?php echo esc_attr( $item['cleaning_width'] ?? '' ); ?>" />
                             </label>
                         </p>
                         <p>
                             <label>Total capacity per use (m²):
-                                <input type="number" step="any" min="0" name="my_plugin_options[<?php echo $index; ?>][total_capacity_per_use]" value="<?php echo esc_attr( $item['total_capacity_per_use'] ?? '' ); ?>" placeholder="4500" />
+                                <input type="number" step="any" min="0" name="my_plugin_options[<?php echo $index; ?>][total_capacity_per_use]" value="<?php echo esc_attr( $item['total_capacity_per_use'] ?? '' ); ?>" />
                             </label>
                         </p>
                         <p>
                             <label>Clean water tank capacity (liters):
-                                <input type="number" step="any" min="0" name="my_plugin_options[<?php echo $index; ?>][clean_water_tank_capacity]" value="<?php echo esc_attr( $item['clean_water_tank_capacity'] ?? '' ); ?>" placeholder="16" />
+                                <input type="number" step="any" min="0" name="my_plugin_options[<?php echo $index; ?>][clean_water_tank_capacity]" value="<?php echo esc_attr( $item['clean_water_tank_capacity'] ?? '' ); ?>" />
                             </label>
                         </p>
                         <p>
                             <label>Dirty water tank capacity (liters):
-                                <input type="number" step="any" min="0" name="my_plugin_options[<?php echo $index; ?>][dirty_water_tank_capacity]" value="<?php echo esc_attr( $item['dirty_water_tank_capacity'] ?? '' ); ?>" placeholder="14" />
+                                <input type="number" step="any" min="0" name="my_plugin_options[<?php echo $index; ?>][dirty_water_tank_capacity]" value="<?php echo esc_attr( $item['dirty_water_tank_capacity'] ?? '' ); ?>" />
                             </label>
                         </p>
                         <p>
                             <label>Dust bag capacity (liters):
-                                <input type="number" step="any" min="0" name="my_plugin_options[<?php echo $index; ?>][dust_bag_capacity]" value="<?php echo esc_attr( $item['dust_bag_capacity'] ?? '' ); ?>" placeholder="8" />
+                                <input type="number" step="any" min="0" name="my_plugin_options[<?php echo $index; ?>][dust_bag_capacity]" value="<?php echo esc_attr( $item['dust_bag_capacity'] ?? '' ); ?>" />
                             </label>
                         </p>
                         <p>
                             <label>Waste container capacity (liters):
-                                <input type="number" step="any" min="0" name="my_plugin_options[<?php echo $index; ?>][waste_container_capacity]" value="<?php echo esc_attr( $item['waste_container_capacity'] ?? '' ); ?>" placeholder="0.7" />
+                                <input type="number" step="any" min="0" name="my_plugin_options[<?php echo $index; ?>][waste_container_capacity]" value="<?php echo esc_attr( $item['waste_container_capacity'] ?? '' ); ?>" />
                             </label>
                         </p>
                         <p>

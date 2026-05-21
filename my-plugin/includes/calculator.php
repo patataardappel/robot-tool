@@ -204,12 +204,10 @@ function my_plugin_calculate_display( $meters, $minutes, $floor_type = '', $week
                     </div>
 
                     <div id="barChartsContainer" class="hidden">
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="h-32"><canvas id="chartAvail"></canvas></div>
-                            <div class="h-32"><canvas id="chartCosts"></canvas></div>
-                            <div class="h-32"><canvas id="chartCleaning"></canvas></div>
-                            <div class="h-32"><canvas id="chartAbsence"></canvas></div>
-                        </div>
+                        <div class="sub-chart h-32"><canvas id="chartAvail"></canvas></div>
+                        <div class="sub-chart h-32"><canvas id="chartCosts"></canvas></div>
+                        <div class="sub-chart h-32"><canvas id="chartCleaning"></canvas></div>
+                        <div class="sub-chart h-32"><canvas id="chartAbsence"></canvas></div>
                     </div>
                 </div>
             </div>
@@ -273,28 +271,40 @@ function my_plugin_calculate_display( $meters, $minutes, $floor_type = '', $week
                             <tbody>
                                 <tr>
                                     <td>efficiency (m²/hour)</td>
-                                    <td>1000 (m²/hour)</td>
-                                    <td>700 (m²/hour)</td>
+                                    <td id="comparisonRobotEfficiency"><?php echo intval( $cleaning_per_hour_robot ); ?> (m²/hour)</td>
+                                    <td id="comparisonManualEfficiency"><?php echo intval( $cleaning_per_hour_manual ); ?> (m²/hour)</td>
                                 </tr>
                                 <tr>
                                     <td>Totale kosten robot</td>
-                                    <td><?php echo esc_html($selected_item['price']); ?></td>
+                                    <td id="comparisonRobotPrice"><?php echo esc_html( isset($selected_item['price']) ? '€' . number_format($selected_item['price'], 0, ',', '.') : '€0' ); ?></td>
                                     <td>€0</td>
                                 </tr>
                                 <tr>
                                     <td>kosten per m2</td>
-                                    <td>€16</td>
-                                    <td>€23</td>
+                                    <td id="comparisonRobotCostPerM2"><?php 
+                                        $cost_per_m2_robot = $meters > 0 ? $robot_annual_cost / $meters : 0;
+                                        echo '€' . number_format($cost_per_m2_robot, 2, ',', '.');
+                                    ?></td>
+                                    <td id="comparisonManualCostPerM2"><?php 
+                                        $cost_per_m2_manual = $meters > 0 ? $annual_cost / $meters : 0;
+                                        echo '€' . number_format($cost_per_m2_manual, 2, ',', '.');
+                                    ?></td>
                                 </tr>
                                 <tr>
                                     <td>schoonmaak tijd ruimte</td>
-                                    <td>87 minuten</td>
-                                    <td>103 minuten</td>
+                                    <td id="comparisonRobotCleanTime"><?php 
+                                        $robot_clean_time = $cleaning_per_hour_robot > 0 ? round(($meters / $cleaning_per_hour_robot) * 60) : 0;
+                                        echo intval($robot_clean_time) . ' minuten';
+                                    ?></td>
+                                    <td id="comparisonManualCleanTime"><?php 
+                                        $manual_clean_time = $cleaning_per_hour_manual > 0 ? round(($meters / $cleaning_per_hour_manual) * 60) : 0;
+                                        echo intval($manual_clean_time) . ' minuten';
+                                    ?></td>
                                 </tr>
                                 <tr>
                                     <td>Inzetbaarheid per dag</td>
-                                    <td>16 uur</td>
-                                    <td>4 uur</td>
+                                    <td id="comparisonRobotAvailability"><?php echo number_format( $availability_robot, 1, ',', '.' ); ?> uur</td>
+                                    <td id="comparisonManualAvailability"><?php echo number_format( $availability_manual, 1, ',', '.' ); ?> uur</td>
                                 </tr>
                                 <tr>
                                     <td>Foutmarge</td>
@@ -322,11 +332,14 @@ function my_plugin_calculate_display( $meters, $minutes, $floor_type = '', $week
 #barChartsContainer:not(.hidden) {
     display: flex !important;
     flex-direction: row !important;
-    flex-wrap: nowrap !important;
+    flex-wrap: wrap !important;
     align-items: flex-start;
+    gap: 14px;
 }
 .sub-chart {
-    flex: 1 1 200px;
+    flex: 0 0 130px;
+    max-width: 130px;
+    min-width: 130px;
 }
 </style>
 
@@ -472,6 +485,38 @@ function refreshResults() {
         comparisonRobotCost.textContent = formatEuro(metrics.totalCostWithRobot);
     }
 
+    // Update comparison table cells
+    const costPerM2Robot = liveResultData.meters > 0 ? liveResultData.robotAnnualCost / liveResultData.meters : 0;
+    const costPerM2Manual = liveResultData.meters > 0 ? metrics.manualAnnualCost / liveResultData.meters : 0;
+    const cleanTimeRobot = liveResultData.robotCleaningRate > 0 ? Math.round((liveResultData.meters / liveResultData.robotCleaningRate) * 60) : 0;
+    const cleanTimeManual = liveResultData.manualCleaningRate > 0 ? Math.round((liveResultData.meters / liveResultData.manualCleaningRate) * 60) : 0;
+
+    const comparisonRobotCostPerM2 = document.getElementById('comparisonRobotCostPerM2');
+    const comparisonManualCostPerM2 = document.getElementById('comparisonManualCostPerM2');
+    const comparisonRobotCleanTime = document.getElementById('comparisonRobotCleanTime');
+    const comparisonManualCleanTime = document.getElementById('comparisonManualCleanTime');
+    const comparisonRobotAvailability = document.getElementById('comparisonRobotAvailability');
+    const comparisonManualAvailability = document.getElementById('comparisonManualAvailability');
+
+    if (comparisonRobotCostPerM2) {
+        comparisonRobotCostPerM2.textContent = '€' + costPerM2Robot.toFixed(2).replace('.', ',');
+    }
+    if (comparisonManualCostPerM2) {
+        comparisonManualCostPerM2.textContent = '€' + costPerM2Manual.toFixed(2).replace('.', ',');
+    }
+    if (comparisonRobotCleanTime) {
+        comparisonRobotCleanTime.textContent = cleanTimeRobot + ' minuten';
+    }
+    if (comparisonManualCleanTime) {
+        comparisonManualCleanTime.textContent = cleanTimeManual + ' minuten';
+    }
+    if (comparisonRobotAvailability) {
+        comparisonRobotAvailability.textContent = liveResultData.availabilityRobot.toFixed(1).replace('.', ',') + ' uur';
+    }
+    if (comparisonManualAvailability) {
+        comparisonManualAvailability.textContent = metrics.availabilityManual.toFixed(1).replace('.', ',') + ' uur';
+    }
+
     if (currentChartType === 'line' && myChart) {
         const annualManual = metrics.manualAnnualCost;
         const totalWithRobot = metrics.totalCostWithRobot;
@@ -556,9 +601,34 @@ function initChart(type = 'line') {
         lineContainer.classList.add('hidden');
         barContainer.classList.remove('hidden');
 
+        const chartPlugin = {
+            afterDatasetsDraw(chart) {
+                const {ctx, data, chartArea: {left, top, width, height}} = chart;
+                ctx.save();
+                data.datasets.forEach((datasetMeta, i) => {
+                    const dataset = chart.getDatasetMeta(i);
+                    dataset.data.forEach((datapoint, index) => {
+                        const {x, y} = datapoint.getProps(['x', 'y'], true);
+                        ctx.fillStyle = '#333';
+                        ctx.font = 'bold 11px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'bottom';
+                        const value = Math.round(datapoint.$context.raw * 10) / 10;
+                        ctx.fillText(value, x, y - 8);
+                    });
+                });
+                ctx.restore();
+            }
+        };
+
         const barOptions = {
             responsive: true,
             maintainAspectRatio: false,
+            layout: {
+                padding: {
+                    top: 25
+                }
+            },
             plugins: {
                 legend: {
                     display: false
@@ -566,10 +636,21 @@ function initChart(type = 'line') {
             },
             scales: {
                 y: {
-                    beginAtZero: true
+                    beginAtZero: true,
+                    ticks: {
+                        display: false
+                    },
+                    grid: {
+                        display: false
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
                 }
             },
-            barPercentage: 0.4
+            barPercentage: 0.8
         };
 
         chartAvail = new Chart(document.getElementById('chartAvail'), {
@@ -581,7 +662,18 @@ function initChart(type = 'line') {
                     backgroundColor: ['#f87171', '#4f46e5']
                 }]
             },
-            options: barOptions
+            plugins: [chartPlugin],
+            options: {
+                ...barOptions,
+                plugins: {
+                    ...barOptions.plugins,
+                    title: {
+                        display: true,
+                        text: 'Beschikbaarheid (uur)',
+                        font: { size: 13, weight: 'bold' }
+                    }
+                }
+            }
         });
 
         chartCosts = new Chart(document.getElementById('chartCosts'), {
@@ -593,7 +685,18 @@ function initChart(type = 'line') {
                     backgroundColor: ['#f87171', '#4f46e5']
                 }]
             },
-            options: barOptions
+            plugins: [chartPlugin],
+            options: {
+                ...barOptions,
+                plugins: {
+                    ...barOptions.plugins,
+                    title: {
+                        display: true,
+                        text: 'Kosten per jaar (€)',
+                        font: { size: 13, weight: 'bold' }
+                    }
+                }
+            }
         });
 
         chartCleaning = new Chart(document.getElementById('chartCleaning'), {
@@ -605,7 +708,18 @@ function initChart(type = 'line') {
                     backgroundColor: ['#f87171', '#4f46e5']
                 }]
             },
-            options: barOptions
+            plugins: [chartPlugin],
+            options: {
+                ...barOptions,
+                plugins: {
+                    ...barOptions.plugins,
+                    title: {
+                        display: true,
+                        text: 'Schoonmaak (m²/uur)',
+                        font: { size: 13, weight: 'bold' }
+                    }
+                }
+            }
         });
 
         chartAbsence = new Chart(document.getElementById('chartAbsence'), {
@@ -617,7 +731,18 @@ function initChart(type = 'line') {
                     backgroundColor: ['#f87171', '#4f46e5']
                 }]
             },
-            options: barOptions
+            plugins: [chartPlugin],
+            options: {
+                ...barOptions,
+                plugins: {
+                    ...barOptions.plugins,
+                    title: {
+                        display: true,
+                        text: 'Afwezigheid (dagen/jaar)',
+                        font: { size: 13, weight: 'bold' }
+                    }
+                }
+            }
         });
     }
 

@@ -20,7 +20,22 @@ function my_plugin_form_shortcode( $atts ) {
 
 <div class="container-box">
     <form action="<?php echo $results_url; ?>" method="post" class="space-y-8" onsubmit="return validateRoomType()">
-        <div class="form-step step-1 active">
+        <div class="form-step step-0 active">
+            <div class="step-indicator">Introductie</div>
+            <h2 class="selection-title">Welkom bij onze robotkeuzeassistent</h2>
+
+            <p style="font-size: 16px; line-height: 1.6; color: #555; margin: 20px 0;">
+                Wij helpen u de juiste reinigingsrobot te kiezen voor uw behoeften. Door enkele vragen over uw ruimte en vereisten te beantwoorden, kunnen wij u een gepersonaliseerde aanbeveling geven met kostenbesparing analyse.
+            </p>
+
+            <div class="pt-8 flex justify-end items-center">
+                <button type="button" class="btn-verder btn-active" onclick="goToStep1()">
+                    Start
+                </button>
+            </div>
+        </div>
+
+        <div class="form-step step-1">
             <div class="step-indicator">Stap 1 van 2</div>
             <h2 class="selection-title">Type soort ruimte</h2>
 
@@ -72,7 +87,10 @@ function my_plugin_form_shortcode( $atts ) {
                 <?php endforeach; ?>
             </div>
 
-            <div class="pt-8 flex justify-end items-center">
+            <div class="pt-8 flex justify-between items-center">
+                <button type="button" class="btn-verder" style="border: 1px solid #007bb6; background: transparent; color: #007bb6;" onclick="goToStep0()">
+                    Terug
+                </button>
                 <button id="next-step-button" type="button" class="btn-verder btn-active button-disabled" disabled onclick="goToStep2()">
                     Volgende
                 </button>
@@ -119,7 +137,9 @@ function my_plugin_form_shortcode( $atts ) {
             </div>
 
             <div class="pt-8 flex justify-between items-center">
-                <button type="button" onclick="goToStep1()" class="text-gray-400 font-medium hover:text-gray-600 transition-colors">Terug</button>
+                <button type="button" onclick="goToStep1()" class="btn-terug">
+                    Terug
+                </button>
                 <button class="btn-verder btn-active" type="submit">
                     Verder
                 </button>
@@ -161,6 +181,10 @@ function my_plugin_form_shortcode( $atts ) {
         setStep(1);
     }
 
+    function goToStep0() {
+        setStep(0);
+    }
+
     function validateRoomType() {
         if (!document.querySelector('input[name="room_type"]:checked')) {
             alert('Kies eerst een type ruimte.');
@@ -172,7 +196,7 @@ function my_plugin_form_shortcode( $atts ) {
 
     document.addEventListener('DOMContentLoaded', function () {
         enableNextButton();
-        setStep(1);
+        setStep(0);
     });
 </script>
 <?php
