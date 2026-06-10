@@ -186,11 +186,11 @@ function my_plugin_calculate_display( $meters, $minutes, $floor_type = '', $week
                         <div class="flex gap-4">
                             <div class="flex items-center gap-2">
                                 <div class="w-3 h-3 rounded-full bg-red-400"></div>
-                                <span class="text-xs text-gray-500">Robot situatie</span>
+                                <span class="text-xs text-gray-500">Vergelijking</span>
                             </div>
                             <div class="flex items-center gap-2">
                                 <div class="w-3 h-3 rounded-full bg-indigo-600"></div>
-                                <span class="text-xs text-gray-500">Handmatige schoonmaak</span>
+                                <span class="text-xs text-gray-500">Robot en handmatige schoonmaak</span>
                             </div>
                         </div>
                         <div class="flex gap-2">
@@ -204,10 +204,10 @@ function my_plugin_calculate_display( $meters, $minutes, $floor_type = '', $week
                     </div>
 
                     <div id="barChartsContainer" class="hidden">
-                        <div class="sub-chart h-32"><canvas id="chartAvail"></canvas></div>
-                        <div class="sub-chart h-32"><canvas id="chartCosts"></canvas></div>
-                        <div class="sub-chart h-32"><canvas id="chartCleaning"></canvas></div>
-                        <div class="sub-chart h-32"><canvas id="chartAbsence"></canvas></div>
+                        <div class="sub-chart"><canvas id="chartAvail"></canvas></div>
+                        <div class="sub-chart"><canvas id="chartCosts"></canvas></div>
+                        <div class="sub-chart"><canvas id="chartCleaning"></canvas></div>
+                        <div class="sub-chart"><canvas id="chartAbsence"></canvas></div>
                     </div>
                 </div>
             </div>
@@ -670,7 +670,7 @@ function initChart(type = 'line') {
                     title: {
                         display: true,
                         text: 'Beschikbaarheid (uur)',
-                        font: { size: 13, weight: 'bold' }
+                        font: { size: 13, weight: 'bold' },
                     }
                 }
             }
@@ -693,7 +693,8 @@ function initChart(type = 'line') {
                     title: {
                         display: true,
                         text: 'Kosten per jaar (€)',
-                        font: { size: 13, weight: 'bold' }
+                        font: { size: 13, weight: 'bold' },
+                        padding: { bottom: 5 }
                     }
                 }
             }
@@ -716,7 +717,8 @@ function initChart(type = 'line') {
                     title: {
                         display: true,
                         text: 'Schoonmaak (m²/uur)',
-                        font: { size: 13, weight: 'bold' }
+                        font: { size: 13, weight: 'bold' },
+                        padding: { bottom: 5 }
                     }
                 }
             }
@@ -739,7 +741,8 @@ function initChart(type = 'line') {
                     title: {
                         display: true,
                         text: 'Afwezigheid (dagen/jaar)',
-                        font: { size: 13, weight: 'bold' }
+                        font: { size: 13, weight: 'bold' },
+                        padding: { bottom: 5 }
                     }
                 }
             }

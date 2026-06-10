@@ -145,13 +145,14 @@ body {
 
 /* Robot Content & Checklist Section */
 .robot-content-section {
+    display: inline-flex;
+    /* or: display: flex; */
+    width: fit-content;
+    max-width: none;
     flex: 0 0 auto;
-    max-width: 420px;
-    width: 100%;
-    display: flex;
     flex-direction: column;
     justify-content: center;
-    gap: 20px;
+    gap: 20px
 }
 
 .robot-header-group {
@@ -212,10 +213,12 @@ body {
 }
 
 .vertical-stat-stack {
-    flex: 0 0 220px; /* Expanded layout width */
+    flex: 0 0 220px;
+    /* Expanded layout width */
     display: flex;
     flex-direction: column;
-    gap: 16px; /* Uniform card spacing */
+    gap: 16px;
+    /* Uniform card spacing */
 }
 
 .chart-container {
@@ -224,7 +227,6 @@ body {
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     padding: 20px;
-    max-height: 200px;
 }
 
 /* Stat Cards Typographic Layout */
@@ -373,7 +375,8 @@ body {
 
 /* Highlight the final summary or total row */
 .comparison-table tr.active-row {
-    background-color: #f0fdf4 !important; /* Soft green success tint */
+    background-color: #f0fdf4 !important;
+    /* Soft green success tint */
 }
 
 .comparison-table tr.active-row td {
@@ -393,6 +396,7 @@ body {
 .comparison-table td:nth-child(3) {
     font-weight: 500;
 }
+
 /* --- 4. Shared UI Elements --- */
 .label-text {
     color: var(--text-muted);
@@ -445,6 +449,10 @@ body {
     display: block;
 }
 
+.intro-container.form-step.active {
+    display: flex;
+}
+
 .step-indicator {
     color: var(--text-muted);
     font-size: 0.95rem;
@@ -456,20 +464,75 @@ body {
     cursor: not-allowed;
 }
 
+.hidden {
+    display: none !important;
+}
+
+.h-64 {
+    height: 16rem !important;
+}
+
+.h-32 {
+    height: 8rem !important;
+}
+
 /* Forced Layout Chart Container Overrides */
 #barChartsContainer:not(.hidden) {
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: nowrap !important;
-    align-items: flex-start;
+    align-items: stretch !important;
+    height: 16rem !important;
 }
 
-.sub-chart {
-    flex: 1 1 200px;
+#barChartsContainer:not(.hidden) .sub-chart {
+    flex: 1 1 0;
+    height: 100%;
+    min-height: 0;
+}
+
+#barChartsContainer:not(.hidden) .sub-chart canvas {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+}
+
+.intro-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 24px;
+}
+
+.intro-container.form-step:not(.active) {
+    display: none;
+}
+
+.intro-container .intro-image {
+    flex: 0 0 auto;
+    height: 100%;
+    aspect-ratio: 1 / 1;
+    max-width: 320px;
+    width: auto;
+}
+
+.intro-container .intro-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: 25px;
+}
+
+.intro-container .intro-content {
+    flex: 1 1 0;
+    min-width: 0;
 }
 
 /* --- 5. Responsive Media Queries --- */
 @media (max-width: 1024px) {
+
     .layout-grid-wrapper,
     .stats-chart-split,
     .robot-recommendation-card {
