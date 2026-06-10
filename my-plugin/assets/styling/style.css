@@ -1,0 +1,547 @@
+/* --- 1. Variables & Global Styles --- */
+:root {
+    --primary-blue: #007bb6;
+    --primary-hover: #2A9AD2;
+    --text-main: #1f2937;
+    --text-muted: #6b7280;
+    --text-light: #9ca3af;
+    --border-color: #e5e7eb;
+    --bg-light: #f9fafb;
+    --radius-lg: 28px;
+    --radius-md: 16px;
+    --radius-sm: 10px;
+    --transition: all 0.3s ease;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap');
+
+body {
+    font-family: 'Geist', sans-serif;
+    color: var(--text-main);
+    background-color: #ffffff;
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* --- 2. Room Selection --- */
+.container-box {
+    max-width: 650px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+.room-selection-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-bottom: 40px;
+}
+
+.room-option {
+    cursor: pointer;
+    display: block;
+}
+
+.room-radio {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+}
+
+.image-container {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background-color: #f3f4f6;
+    margin-bottom: 12px;
+    border: 4px solid transparent;
+    transition: border-color 0.2s ease;
+}
+
+.image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: saturate(0.4);
+    opacity: 0.5;
+    transition: var(--transition);
+}
+
+/* Hover & Selected Logic */
+.room-option:hover .image-container img {
+    filter: saturate(0.7);
+    opacity: 0.8;
+}
+
+.room-radio:checked+.room-card-content .image-container {
+    border-color: var(--primary-blue);
+}
+
+.room-radio:checked+.room-card-content .image-container img {
+
+    opacity: 1;
+}
+
+.room-radio:checked+.room-card-content .room-label {
+    color: var(--text-main);
+    font-weight: 700;
+}
+
+.room-label {
+    margin: 8px 0 0 4px;
+    color: var(--text-muted);
+    font-size: 1rem;
+}
+
+/* --- 3. Dashboard Layout & Recommendation Components --- */
+.dashboard-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.layout-grid-wrapper {
+    display: flex;
+    gap: 40px;
+    align-items: flex-start;
+}
+
+.sidebar-column {
+    flex: 0 0 280px;
+    position: sticky;
+    top: 20px;
+}
+
+.results-column {
+    flex: 1;
+}
+
+/* Robot Recommendation Top Card */
+.robot-recommendation-card {
+    background: white;
+    display: flex;
+    gap: 0;
+    padding: 32px;
+    margin: 40px auto 48px;
+    justify-content: center;
+    max-width: 900px;
+}
+
+.robot-image-section {
+    flex: 0 0 50%;
+    max-width: 480px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.robot-image-section img {
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--radius-md);
+}
+
+/* Robot Content & Checklist Section */
+.robot-content-section {
+    display: inline-flex;
+    /* or: display: flex; */
+    width: fit-content;
+    max-width: none;
+    flex: 0 0 auto;
+    flex-direction: column;
+    justify-content: center;
+    gap: 20px
+}
+
+.robot-header-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.robot-title {
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--text-main);
+    margin: 0;
+    line-height: 1.2;
+}
+
+.robot-subtitle {
+    font-size: 16px;
+    color: var(--text-muted);
+    margin: 0;
+    font-weight: 400;
+}
+
+.robot-features-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.check-icon-wrapper {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 12px;
+    color: var(--text-main);
+    font-size: 15px;
+    font-weight: 500;
+    min-height: 30px;
+}
+
+.check-icon-wrapper svg {
+    flex-shrink: 0;
+}
+
+.robot-action-wrapper {
+    margin-top: 8px;
+}
+
+.robot-action-wrapper .btn-verder {
+    padding: 14px 36px;
+    font-size: 15px;
+}
+
+/* Stats and Charts Grid Split */
+.stats-chart-split {
+    display: flex;
+    gap: 20px;
+}
+
+.vertical-stat-stack {
+    flex: 0 0 220px;
+    /* Expanded layout width */
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    /* Uniform card spacing */
+}
+
+.chart-container {
+    flex: 1;
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 20px;
+}
+
+/* Stat Cards Typographic Layout */
+.stat-card {
+    background: white;
+    padding: 20px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.stat-card-blue {
+    background: var(--primary-blue);
+    color: white;
+    border: none;
+}
+
+.stat-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin: 0;
+    text-transform: none;
+}
+
+.stat-card-blue .stat-label {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.stat-value {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text-main);
+    margin: 4px 0;
+    line-height: 1.2;
+}
+
+.stat-card-blue .stat-value {
+    color: #ffffff;
+}
+
+.stat-sub {
+    font-size: 12px;
+    color: var(--text-light);
+    margin: 0;
+}
+
+.stat-card-blue .stat-sub {
+    color: rgba(255, 255, 255, 0.75);
+}
+
+/* Bottom Structure & Controls */
+.bottom-wrapper {
+    display: flex;
+    width: 100%;
+    gap: 30px;
+}
+
+.slider-custom {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 4px;
+    background: #e5e7eb;
+    border-radius: 5px;
+    outline: none;
+}
+
+.slider-custom::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    background: #007bb6;
+    cursor: pointer;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.sliders-container {
+    min-width: 200px;
+}
+
+
+/* --- Comparison Table Styling --- */
+.comparison-table-wrapper {
+    margin-top: 40px;
+    width: 100%;
+}
+
+.comparison-table-wrapper .stat-card {
+    padding: 0 !important;
+    overflow: hidden;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    background: #ffffff;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+}
+
+/* Header Banner style mimicking card elements */
+.comparison-table-wrapper .table-header-banner {
+    background: var(--primary-blue);
+    color: white;
+    padding: 16px 24px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+}
+
+.comparison-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+    background: #ffffff;
+}
+
+.comparison-table th {
+    background: var(--bg-light);
+    color: var(--text-main);
+    font-weight: 600;
+    padding: 14px 24px;
+    text-align: left;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.comparison-table td {
+    padding: 16px 24px;
+    color: var(--text-main);
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.2s ease;
+}
+
+/* Row stripping for clear comparison view */
+.comparison-table tbody tr:nth-child(even) {
+    background-color: #fdfdfd;
+}
+
+/* Hover accent to guide reading paths across columns */
+.comparison-table tbody tr:hover {
+    background-color: var(--bg-light);
+}
+
+/* Highlight the final summary or total row */
+.comparison-table tr.active-row {
+    background-color: #f0fdf4 !important;
+    /* Soft green success tint */
+}
+
+.comparison-table tr.active-row td {
+    border-top: 1px solid #bbf7d0;
+    border-bottom: none;
+    padding-top: 18px;
+    padding-bottom: 18px;
+}
+
+.comparison-table tr.active-row td:first-child {
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+/* Align numeric data or highlighted variables nicely */
+.comparison-table td:nth-child(2),
+.comparison-table td:nth-child(3) {
+    font-weight: 500;
+}
+
+/* --- 4. Shared UI Elements --- */
+.label-text {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.custom-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    font-size: 1rem;
+}
+
+.btn-verder {
+    padding: 12px 32px;
+    border-radius: 50px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-terug {
+    padding: 12px 32px;
+    border-radius: 50px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: var(--transition);
+    background-color: #e2e2e2;
+}
+
+.btn-active {
+    background: var(--primary-blue);
+    color: white;
+}
+
+.btn-active:hover {
+    background: var(--primary-hover);
+}
+
+.form-step {
+    display: none;
+}
+
+.form-step.active {
+    display: block;
+}
+
+.intro-container.form-step.active {
+    display: flex;
+}
+
+.step-indicator {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-bottom: 18px;
+}
+
+.button-disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.h-64 {
+    height: 16rem !important;
+}
+
+.h-32 {
+    height: 8rem !important;
+}
+
+/* Forced Layout Chart Container Overrides */
+#barChartsContainer:not(.hidden) {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: stretch !important;
+    height: 16rem !important;
+}
+
+#barChartsContainer:not(.hidden) .sub-chart {
+    flex: 1 1 0;
+    height: 100%;
+    min-height: 0;
+}
+
+#barChartsContainer:not(.hidden) .sub-chart canvas {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+}
+
+.intro-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 24px;
+}
+
+.intro-container.form-step:not(.active) {
+    display: none;
+}
+
+.intro-container .intro-image {
+    flex: 0 0 auto;
+    height: 100%;
+    aspect-ratio: 1 / 1;
+    max-width: 320px;
+    width: auto;
+}
+
+.intro-container .intro-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: 25px;
+}
+
+.intro-container .intro-content {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+/* --- 5. Responsive Media Queries --- */
+@media (max-width: 1024px) {
+
+    .layout-grid-wrapper,
+    .stats-chart-split,
+    .robot-recommendation-card {
+        flex-direction: column;
+    }
+
+    .sidebar-column,
+    .vertical-stat-stack {
+        flex: 1;
+        width: 100%;
+    }
+}
